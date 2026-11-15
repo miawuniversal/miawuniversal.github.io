@@ -171,6 +171,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--rust);outline-o
   <div id="toast" hidden></div>
 </div>
 
+<script>var MIAWS_MOVIL=Math.min(window.innerWidth,window.innerHeight)<760||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
@@ -254,8 +255,7 @@ const FORMS=[
 
 /* ================= Renderer ================= */
 const stage=document.getElementById('stage');
-const MIAWS_MOVIL=Math.min(window.innerWidth,window.innerHeight)<760||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-{antialias:!MIAWS_MOVIL,powerPreference:'high-performance',logarithmicDepthBuffer:true});
+const renderer=new THREE.WebGLRenderer({antialias:!MIAWS_MOVIL,powerPreference:'high-performance',logarithmicDepthBuffer:true});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,MIAWS_MOVIL?1.25:2));
 renderer.shadowMap.enabled=!MIAWS_MOVIL;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.NoToneMapping;
