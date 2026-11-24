@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Syntax · MIAWS Foundations</title>
+<meta name="description" content="Trace a street. Four rules place the houses. Compare scenarios and print them to scale. A research tool by MIAWS Foundations.">
+<!-- Syntax · MIAWS Foundations · miaws.com -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111111;--ink-muted:#6E6E6E;--canvas:#FFFFFF;--hair:#DCDCDC;--raised:#F2F2F2;--lav:#C4B4EE;--lav-wash:#F0EDF7;--lav-hair:#D9D5E4;--plum:#2E2440;--sheet-klein:#002FA7;--sheet-fluor-yellow:#EDFF21;--layer-orange:#FF6A1A;--magenta:#E50DE5;--on-magenta:#0A0A0A;--night:#0A0A0A;--on-dark:#FFFFFF;--on-dark-muted:#9A9A9A}   /* valores de tokens.css del sistema de diseno de MIAWS, copiados por el generador */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--canvas);color:var(--ink);font-family:Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+canvas{position:fixed;inset:0;width:100%;height:100%;cursor:crosshair;touch-action:none;display:block}
+button,select,input{font-family:inherit;color:inherit;border-radius:0}
+.lab{font-weight:700;font-size:11px;letter-spacing:.24em;text-transform:uppercase}
+#hint{position:fixed;left:50%;top:52%;transform:translate(-50%,-50%);width:min(360px,calc(100% - 60px));text-align:center;pointer-events:none;transition:opacity .4s}
+#hint b{display:block;font-size:30px;line-height:1;letter-spacing:-.02em}
+#hint span{display:block;font-size:15px;line-height:1.35;margin-top:8px}
+#hint>*{background:var(--canvas);display:inline;box-decoration-break:clone;-webkit-box-decoration-break:clone;padding:2px 6px}
+#hint b{display:inline-block;padding:6px 8px}
+#syn{position:fixed;left:14px;top:14px;background:var(--canvas);border:1px solid var(--ink);padding:11px 16px;cursor:pointer}
+#rules{position:fixed;left:14px;top:14px;width:340px;max-width:calc(100% - 28px);max-height:calc(100% - 28px);overflow:auto;background:var(--canvas);border:1px solid var(--ink);padding:16px;font-size:12.5px;line-height:1.3}
+#rules h2{margin:0 0 6px}
+#rules .x{position:absolute;right:6px;top:4px;border:0;background:none;font-size:22px;line-height:1;padding:6px 8px;cursor:pointer}
+#rules label{display:flex;justify-content:space-between;margin-top:10px} #rules label b{font-weight:700;min-width:9.5em;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+#rules input[type=range]{width:100%;margin:4px 0 0;height:24px;background:none;-webkit-appearance:none;appearance:none;cursor:pointer}
+#rules input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--ink)} #rules input[type=range]::-moz-range-track{height:2px;background:var(--ink)}
+#rules input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:22px;margin-top:-10px;background:var(--ink);border:0;border-radius:0} #rules input[type=range]::-moz-range-thumb{width:12px;height:22px;background:var(--ink);border:0;border-radius:0}
+#rules table{width:100%;border-collapse:collapse;margin-top:14px;font-variant-numeric:tabular-nums;table-layout:fixed} #rules td:first-child,#rules th:first-child{width:46%} #rules td,#rules th{white-space:nowrap;overflow:hidden}
+#rules td,#rules th{padding:4px 0 4px 8px;border-top:1px solid var(--hair);text-align:right;font-weight:400} #rules td:first-child,#rules th:first-child{text-align:left;padding-left:0}
+#rules th{font-weight:700;font-size:10px;letter-spacing:.08em;text-transform:uppercase;border-top:1px solid var(--ink)} #rules td.now{font-weight:700}
+#rules .sw{display:flex;gap:6px;margin-top:14px} #rules .sw button{flex:1;height:26px;border:1px solid var(--ink);padding:0;cursor:pointer} #rules .sw button[aria-pressed=true]{outline:2px solid var(--ink);outline-offset:2px}
+#rules .keep{width:100%;margin-top:14px;background:var(--ink);color:var(--canvas);border:0;padding:12px;cursor:pointer}
+#rules .note{color:var(--ink-muted);margin-top:10px;font-size:11px}
+body.pclosed #rules{display:none} body:not(.pclosed) #syn{display:none}
+body.pmin #rules>*:not(.sl){display:none} body.pmin #rules .sl>div:not(.act){display:none} body.pmin #rules{padding:10px 16px 12px;top:auto;bottom:calc(var(--safe,76px) + 8px);left:50%;transform:translateX(-50%);width:min(460px,calc(100% - 28px))} body.pmin #rules label{margin-top:0}
+#bar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;max-width:calc(100% - 16px);background:var(--canvas);border:1px solid var(--ink)}
+#bar button{background:var(--canvas);border:0;border-right:1px solid var(--ink);padding:13px 14px;cursor:pointer;white-space:nowrap} #bar button:last-child{border-right:0}
+#bar button[aria-pressed=true]{background:var(--ink);color:var(--canvas)}
+#exp{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);width:300px;max-width:calc(100% - 28px);background:var(--canvas);border:1px solid var(--ink);padding:14px;display:none}
+#exp.on{display:block} #exp .r{display:flex;border:1px solid var(--ink);margin-top:8px} #exp .r button{flex:1;background:var(--canvas);border:0;border-right:1px solid var(--ink);padding:11px 4px;cursor:pointer} #exp .r button:last-child{border-right:0}
+#exp .r button[aria-pressed=true]{background:var(--ink);color:var(--canvas)} #exp p{margin:10px 0 0;font-size:11px;color:var(--ink-muted)}
+#toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--ink);color:var(--canvas);padding:14px 18px;font-size:14px;max-width:80%;text-align:center;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast.on{opacity:1}
+#autor{position:fixed;left:14px;bottom:16px;width:150px;font-size:11px;line-height:1.35;color:var(--ink-muted);pointer-events:none;display:none} body.wide.pclosed #autor{display:block}
+#autor span{background:var(--canvas);padding:1px 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+#miaws-cinta{position:fixed;right:12px;top:12px;display:flex;align-items:center;gap:10px;background:var(--night);color:var(--on-dark);padding:7px 7px 7px 14px;font-size:13px;line-height:1}
+#miaws-cinta svg{height:11px;width:auto;display:block} #miaws-cinta span{color:var(--on-dark-muted)}
+#miaws-cinta a{background:var(--magenta);color:var(--on-magenta);text-decoration:none;font-weight:700;padding:9px 15px;white-space:nowrap}
+#nib{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--ink);border:3px solid var(--canvas);pointer-events:none;display:none;z-index:9}
+#err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:30px;text-align:center;background:var(--canvas);font-size:16px;line-height:1.4}
+body.rec #bar,body.rec #miaws-cinta,body.rec #autor,body.rec #hint,body.rec #syn{display:none}
+/* recording: the panel is a line (one slider) or a table at the bottom, inside the safe zone and at reading size */
+body.rec #rules{left:var(--rl,72px);right:var(--rr,160px);top:auto;bottom:calc(var(--safe,0px) + 8px);width:auto;max-width:none;max-height:none;transform:none;font-size:24px;border-width:2px;padding:18px 24px}
+body.rec.pmin #rules{left:var(--rl,72px);width:auto;transform:none;padding:16px 24px 20px;bottom:calc(var(--safe,0px) + 8px)}
+body.rec #rules .x,body.rec #rules .note,body.rec #rules .sw,body.rec #rules .keep,body.rec #rules h2{display:none}
+body.rec:not(.pmin) #rules .sl{display:none} body.rec #rules table{margin-top:0} body.rec #rules th{font-size:17px;border-top:0} body.rec #rules td,body.rec #rules th{padding:7px 0 7px 14px}
+body.rec #rules input[type=range]{height:34px} body.rec #rules input[type=range]::-webkit-slider-thumb{width:16px;height:30px;margin-top:-14px} body.rec #rules input[type=range]::-webkit-slider-runnable-track{height:3px}
+@media (max-width:700px){#miaws-cinta span{display:none} #bar button{padding:14px 8px;font-size:10px;letter-spacing:.1em} #hint b{font-size:24px} #rules{top:auto;bottom:66px;left:8px;max-width:calc(100% - 16px);width:auto;right:8px;height:56%;max-height:none;padding:12px 14px} #rules .note:first-of-type{display:none} body.pmin #rules{height:auto} #rules table{margin-top:10px} #rules td,#rules th{padding:3px 0 3px 8px} #rules label{margin-top:6px} .lab{letter-spacing:.14em}}
+</style>
+</head>
+<body class="pclosed">
+<canvas id="c" aria-label="Drawing sheet"></canvas>
+<div id="hint"><b>Trace a street.</b><br><span>Houses gather around shared patios along it. Open Syntax to change the rules.</span></div>
+<button id="syn" class="lab">Syntax</button>
+<div id="rules">
+  <button class="x" id="bX" aria-label="Close">×</button>
+  <h2 class="lab">Syntax</h2>
+  <div class="sl">
+  <div><label>Cluster every <b id="vGap"></b></label><input id="rGap" type="range" min="14" max="34" step="1" aria-label="Distance between clusters"></div>
+  <div><label>Patio side <b id="vPatio"></b></label><input id="rPatio" type="range" min="8" max="15" step=".5" aria-label="Patio side"></div>
+  <div><label>Type mix <b id="vMix"></b></label><input id="rMix" type="range" min="0" max="1" step=".05" aria-label="Type mix"></div>
+  <div><label>Height <b id="vH"></b></label><input id="rH" type="range" min="0" max="2" step="1" aria-label="Height"></div>
+  </div>
+  <table id="tab"></table>
+  <button class="keep lab" id="bKeep">Keep scenario</button>
+  <div class="sw" id="sw"></div>
+  <div class="note">A scenario, not a plan. Same street, same rules: same result.</div>
+  <div class="note">Cluster logic studied from Askren Manor (Arenas Basabe Palacios, 2014). Rules, catalogue and drawing by MIAWS.</div>
+</div>
+<div id="bar">
+  <button id="bDraw" class="lab" aria-pressed="true">Draw</button><button id="bPlan" class="lab" aria-pressed="false">Sheet</button><button id="bSeg" class="lab" aria-pressed="false">Measure</button><button id="bExp" class="lab">Export</button><button id="bUndo" class="lab">Undo</button><button id="bClear" class="lab">Clear</button>
+</div>
+<div id="exp">
+  <div class="lab">Export the sheet</div>
+  <div class="r" id="xFmt"><button class="lab" data-v="A3">A3</button><button class="lab" data-v="A2">A2</button><button class="lab" data-v="A1">A1</button></div>
+  <div class="r" id="xEdge"><button class="lab" data-v="frame">Frame</button><button class="lab" data-v="bleed">Full bleed</button></div>
+  <div class="r"><button class="lab" id="xPdf">PDF</button><button class="lab" id="xPng">PNG</button><button class="lab" id="xCsv">CSV</button></div>
+  <p id="xNote"></p>
+</div>
+<div id="autor"><span>Cluster logic studied from Askren Manor (Arenas Basabe Palacios, 2014). Rules, catalogue and drawing by MIAWS.</span></div>
+<div id="miaws-cinta"><svg role="img" aria-label="MIAWS" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4314 1021"><g transform="translate(0,794) scale(1,-1)" fill="currentColor"><path transform="translate(0,0)" d="M454 454V568H0V0H114V454H454V0H568V454ZM1021 0V454H908V568H568V454H908V0Z"/><path transform="translate(1249,0)" d="M227 681V794H113V681ZM227 0V568H0V454H114V0Z"/><path transform="translate(1703,0)" d="M454 113H113V227H0V113H113V0H568V454H454V568H113V454H454V340H113V227H454Z"/><path transform="translate(2498,0)" d="M227 113V340H113V568H0V340H113V113H227V0H340V113ZM681 113V227H567V454H454V227H567V113H681V0H794V113ZM1022 340V568H908V340ZM794 340V113H908V340ZM340 227V113H454V227Z"/><path transform="translate(3633,0)" d="M0 454V341H114V227H454V113H568V227H454V341H114V454ZM568 454V568H114V454ZM0 113V0H454V113Z"/></g></svg><span>Foundations · ETSAM UPM</span><a href="https://miaws.com/apply" target="_blank" rel="noopener">Apply</a></div>
+<div id="nib"></div>
+<div id="toast" role="status"></div>
+<div id="err">This browser cannot draw the sheet. Try a recent version of Chrome, Safari or Firefox.</div>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+try {
+const cv = $('c'), sg = cv.getContext('2d'); if (!sg) throw new Error('no canvas');
+const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = { ink:tok('--ink'), muted:tok('--ink-muted'), paper:tok('--canvas'), hair:tok('--hair'), raised:tok('--raised'),
+            lav:tok('--lav'), lavw:tok('--lav-wash'), lavh:tok('--lav-hair'), plum:tok('--plum') };
+const MODES = { paper:['--canvas', '--ink'], klein:['--sheet-klein', '--canvas'], yellow:['--sheet-fluor-yellow', '--ink'], orange:['--layer-orange', '--ink'], magenta:['--magenta', '--on-magenta'] };
+const FMT = { A3:[420, 297, 500], A2:[594, 420, 350], A1:[841, 594, 250] };       // long side, short side (mm) and the scale that puts the sheet on it
+const WORD = [[0.0, "M454 454V568H0V0H114V454H454V0H568V454ZM1021 0V454H908V568H568V454H908V0Z"], [1249.0, "M227 681V794H113V681ZM227 0V568H0V454H114V0Z"], [1703.0, "M454 113H113V227H0V113H113V0H568V454H454V568H113V454H454V340H113V227H454Z"], [2498.0, "M227 113V340H113V568H0V340H113V113H227V0H340V113ZM681 113V227H567V454H454V227H567V113H681V0H794V113ZM1022 340V568H908V340ZM794 340V113H908V340ZM340 227V113H454V227Z"], [3633.0, "M0 454V341H114V227H454V113H568V227H454V341H114V454ZM568 454V568H114V454ZM0 113V0H454V113Z"]];
+const SHEETFONT = 'Helvetica, Arial, sans-serif';
+const Q = new URLSearchParams(location.search);
+const REC = Q.get('rec') === '1'; if (REC) document.body.classList.add('rec');
+for (const [k, v] of [['safe', '--safe'], ['rl', '--rl'], ['rr', '--rr']]) if (Q.get(k)) document.body.style.setProperty(v, Q.get(k) + 'px');
+const SEED0 = +(Q.get('seed') || 11); let seed = SEED0;
+const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const R = (a, b) => a + rnd() * (b - a), pick = a => a[(rnd() * a.length) | 0];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const back = t => { const c = 1.70158, u = t - 1; return 1 + (c + 1) * u * u * u + c * u * u; };
+const hash = (a, b) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
+
+/* ---------- the sheet: one world, in metres. A-series, upright on a tall screen ---------- */
+const PORT = Q.get('o') ? Q.get('o') === 'p' : innerHeight > innerWidth;
+let WW = PORT ? 148.5 : 210, WH = PORT ? 210 : 148.5;
+if (REC && Q.get('ww')){ WW = +Q.get('ww'); WH = WW * innerHeight / innerWidth; }   // recording only: the sheet takes the shape of the screen
+let W = 0, H = 0, dpr = 1, K0 = 1, OX = 0, OY = 0, view = { z:1, x:0, y:0 };
+let mode = 'draw', bgm = MODES[Q.get('bg')] ? Q.get('bg') : 'paper', fmt = 'A3', edge = 'frame';
+const RULE = { gap:21.5, patio:11, mix:.5, h:0 };
+const HNAME = ['S · 1 floor', 'M · 2 to 4 floors', 'L · 4 to 6 floors'];
+let strokes = [], clusters = [], houses = [], gardens = [], trees = [], lanes = [], bars = [], sp = [], kept = [];
+let sid = 0, nc = 0, cur = null;
+window.__ev = [];
+const ev = (k, t, d) => window.__ev.push([k, t, performance.now() + (d || 0)]);
+
+/* ---------- catalogue. y = 0 is the access side (the shared patio) ---------- */
+function slab(w, d){                                        // a stair core with one flat on each side, stacked
+  const cw = 2.8, ch = 4.6, half = (w - cw) / 2, mid = w / 2, rooms = [['stairs', half, 0, cw, ch]], ops = [[mid - .5, 0, 1, .3, 'd']], furn = [[mid, 2.4, 0, 7, 1.05]];
+  for (const m of [0, 1]){ const X = (x, rw) => m ? w - x - rw : x, F = x => m ? w - x : x;
+    rooms.push(['kitchen', X(0, half*.55), 0, half*.55, 3.4], ['bath', X(half*.55, half*.45), 0, half*.45, 3.4], ['hall', X(0, half), 3.4, half, 1.2], ['living', X(0, mid*.56), ch, mid*.56, d - ch], ['bed', X(mid*.56, mid*.44), ch, mid*.44, d - ch]);
+    ops.push([X(half*.12, half*.3), 0, half*.3, .3, 'w'], [X(mid*.1, mid*.36), d - .3, mid*.36, .3, 'w'], [X(mid*.63, mid*.28), d - .3, mid*.28, .3, 'w'],
+             [X(.6, 1), 3.33, 1, .14], [X(half*.62, .8), 3.33, .8, .14], [X(half*.25, 1.1), 4.53, 1.1, .14], [X(half - .07, .14), 3.55, .14, .9], [X(mid*.56 - .07, .14), 5.2, .14, .9]);
+    furn.push([F(half*.27), .8, 0, 6, 1.05], [F(half*.78), 1.5, Math.PI/2, 5, .85], [F(mid*.28), ch + (d - ch)*.55, 0, 3, 1.3], [F(mid*.78), d - 2.4, 0, 0, 1.05]); }
+  return { w, d, rooms, ops, furn, units:2 }; }
+const TYPES = {
+  A: { name:'Patio house', w:8.4, d:10.8, units:1,
+       rooms:[['hall',0,0,1.8,2.5],['bath',1.8,0,2.2,2.5],['kitchen',4,0,4.4,2.5],['living',0,2.5,8.4,4.3],['bed',0,6.8,4.6,4],['court',4.6,6.8,3.8,4]],
+       ops:[[.45,0,.9,.3,'d'],[.3,2.43,1.2,.14],[1.73,1.3,.14,.8],[4.5,2.43,3.4,.14],[5,0,2.4,.3,'w'],[0,3.5,.3,2.2,'w'],[5.1,6.73,2.8,.14,'w'],[.5,6.73,.9,.14],[1.2,10.5,2.2,.3,'w'],[4.53,8,.14,1.6,'w']],
+       furn:[[6.2,.75,0,6,1.6],[2.9,1.25,Math.PI/2,5,1.05],[2.3,4.4,0,3,1.45],[6.3,4.6,0,1,1.15],[2.3,8.9,0,0,1.25],[6.5,8.8,0,10,1.7]] },
+  B: { name:'Row house', w:5.4, d:9.6, units:1,
+       rooms:[['hall',0,0,1.5,3.2],['kitchen',1.5,0,3.9,3.2],['hall',0,3.2,1.5,2],['bath',1.5,3.2,1.9,2],['stairs',3.4,3.2,2,2],['living',0,5.2,5.4,4.4]],
+       ops:[[.3,0,.9,.3,'d'],[1.43,.8,.14,1.6],[2.3,0,2.2,.3,'w'],[.2,3.13,1.1,.14],[1.43,3.7,.14,.8],[.2,5.13,1.1,.14],[3.6,5.13,1.6,.14],[.9,9.3,3.6,.3,'w']],
+       furn:[[3.45,.8,0,6,1.5],[2.45,4.2,Math.PI/2,5,.9],[4.4,4.2,0,7,.85],[1.9,7.7,0,3,1.3],[4.2,6.4,0,1,.85]] },
+  C: { name:'Studio', w:6.3, d:6.3, units:1,
+       rooms:[['hall',0,0,1.4,2.2],['bath',1.4,0,1.8,2.2],['kitchen',3.2,0,3.1,2.2],['living',0,2.2,6.3,4.1]],
+       ops:[[.25,0,.9,.3,'d'],[.2,2.13,1,.14],[1.33,.9,.14,.8],[3.6,2.13,2.3,.14],[3.9,0,1.7,.3,'w'],[1.2,6,3.9,.3,'w']],
+       furn:[[2.3,1.1,Math.PI/2,5,.9],[4.75,.75,0,6,1.2],[1.6,4.6,0,0,1.1],[4.6,4.3,0,1,.95]] },
+  M: Object.assign(slab(12, 10), { name:'Walk-up' }),       // two flats of about 55 m² per floor and core
+  L: Object.assign(slab(14.4, 12), { name:'Block' })        // two flats of about 80 m² per floor and core
+};
+const CAT = { living:'served', bed:'served', kitchen:'servant', bath:'servant', stairs:'servant', hall:'circ', court:'private' };
+const SEG = () => ({ served:C.lav, servant:C.plum, circ:C.lavw, private:C.raised, shared:C.lavh, street:C.hair });
+const LEG = [['served','Served: living, bedroom'],['servant','Servant: kitchen, bath, stairs'],['circ','Circulation'],['shared','Shared patio and lane'],['private','Private patio and garden']];
+// height rule. S: houses. M: two walk-up clusters in three, the third stays houses. L: blocks, with one walk-up cluster in every four
+function kindFor(i){ if (RULE.h < .5) return ['S', 1]; if (RULE.h < 1.5) return i % 3 === 2 ? ['S', 1] : ['M', [3, 4, 2][i % 3]]; return i % 4 === 1 ? ['M', 4] : ['L', [5, 4, 6, 4][i % 4]]; }
+const pickType = () => { const a = .05 + .4*RULE.mix, c = .05 + .4*(1-RULE.mix), r = rnd() * (a + .5 + c); return r < a ? 'A' : r < a + .5 ? 'B' : 'C'; };
+
+/* ---------- geometry: oriented rectangles {cx,cy,a,w,h} ---------- */
+function corners(r, p = 0){ const c = Math.cos(r.a), s = Math.sin(r.a), w = r.w/2 + p, h = r.h/2 + p;
+  return [[-w,-h],[w,-h],[w,h],[-w,h]].map(([x,y]) => [r.cx + x*c - y*s, r.cy + x*s + y*c]); }
+function overlap(A, B, p){ const a = corners(A, p), b = corners(B, 0);
+  for (const P of [a, b]) for (let i = 0; i < 2; i++){ const nx = P[i+1][1]-P[i][1], ny = P[i][0]-P[i+1][0]; let a0=1e9,a1=-1e9,b0=1e9,b1=-1e9;
+    for (const q of a){ const d = q[0]*nx+q[1]*ny; a0=Math.min(a0,d); a1=Math.max(a1,d); }
+    for (const q of b){ const d = q[0]*nx+q[1]*ny; b0=Math.min(b0,d); b1=Math.max(b1,d); }
+    if (a1 < b0 || b1 < a0) return false; }
+  return true; }
+function inRect(x, y, r, p){ const c = Math.cos(r.a), s = Math.sin(r.a), dx = x-r.cx, dy = y-r.cy;
+  return Math.abs(dx*c+dy*s) <= r.w/2+p && Math.abs(-dx*s+dy*c) <= r.h/2+p; }
+const solids = () => [...bars, ...clusters.map(c => c.patio), ...houses, ...gardens, ...lanes];
+const box = (x0, y0, x1, y1) => ({ cx:(x0+x1)/2, cy:(y0+y1)/2, a:0, w:x1-x0, h:y1-y0 });
+const recSc = () => Math.round(WW * 1000 / (PORT ? 297 : 420) / 50) * 50;                 // recording: the scale that puts this world on an A3
+const safeM = k => REC ? (+Q.get(k) || 0) / K0 : 0;                                        // recording: the safe margins of the social networks, in metres
+function keepOut(){ const U = (REC ? recSc() : 500) / 1000, M = 12 * U, X1 = WW - safeM('rr'), Y1 = WH - safeM('safe');   // nothing is built under the title block, the scale bar or the north
+  return [box(X1 - M - 112*U - 2, Y1 - M - 56*U - 2, X1, Y1), box(0, Y1 - M - 11*U - 2, M + (U <= .3 ? 30 : 50) + 14*U, Y1), box(X1 - M - 15*U, 0, X1, M + 18*U + 2)]; }
+function free(r, pad, streetPad, cid){                      // the rule every piece obeys: a gap or nothing
+  for (const q of corners(r)) if (q[0] < 3 || q[1] < 3 || q[0] > WW-3 || q[1] > WH-3) return false;
+  for (const k of keepOut()) if (overlap(r, k, 0)) return false;
+  for (const o of solids()){ const mine = cid && o.cid === cid;
+    if (overlap(r, o, mine ? -.05 : o.soft ? 0 : Math.max(pad, o.fl > 1 && r.fl > 1 ? Math.min(o.fl, r.fl) * 1.5 : 0))) return false; }   // tall neighbours keep half their height apart
+  if (streetPad) for (const q of sp) if (inRect(q[0], q[1], r, streetPad)) return false;
+  return true; }
+
+/* ---------- the brush: a cluster every few metres of street ---------- */
+function cluster(x, y, t){
+  const a = Math.round(t / (Math.PI/12)) * (Math.PI/12);
+  const ux = [Math.cos(a), Math.sin(a)], uy = [-Math.sin(a), Math.cos(a)], [kind, fl] = kindFor(nc);
+  const minSide = kind === 'S' ? 0 : fl * 3 * .8;           // facing fronts stay about one building height apart
+  for (const s of [cur.side, -cur.side]) for (let k = 0; k < 3; k++){
+    const pw = Math.max(R(RULE.patio-2, RULE.patio+2) - k, minSide), ph = Math.max(R(RULE.patio-2, RULE.patio+2) - k, minSide), L = R(3.5, 8) - k, n = [uy[0]*s, uy[1]*s];
+    const pc = [x + n[0]*(3 + L + ph/2), y + n[1]*(3 + L + ph/2)];
+    const patio = { cx:pc[0], cy:pc[1], a, w:pw, h:ph };
+    if (!free(patio, 1.2, 3.4)) continue;
+    const cid = 'c' + (++nc), lane = { cx:x + n[0]*(3+L)/2, cy:y + n[1]*(3+L)/2, a, w:3, h:3+L, soft:1, lane:1, sid:cur.id, cid };
+    const c = { patio, lane, sid:cur.id, t0:performance.now(), n:0, fl, kind }; patio.sid = cur.id; patio.cid = cid;
+    clusters.push(c); lanes.push(lane); ev('patio', kind, 0);
+    let delay = 140;
+    for (const [o, len, half, flank] of [[n, pw, ph/2, 0], [ux, ph, pw/2, 1], [[-ux[0],-ux[1]], ph, pw/2, 1]]){   // far side first, then both flanks
+      const th = Math.atan2(o[1], o[0]) - Math.PI/2, e = [Math.cos(th), Math.sin(th)];
+      const E = [pc[0] + o[0]*half, pc[1] + o[1]*half];
+      const put = (key, uc, segs) => { const T = TYPES[key], w = T.w * segs;
+        const h = { cx:E[0]+e[0]*uc+o[0]*T.d/2, cy:E[1]+e[1]*uc+o[1]*T.d/2, a:th, w, h:T.d, key, T, n:segs, fl, flip:kind === 'S' && rnd() < .5, sid:cur.id, cid, t0:performance.now()+delay };
+        if (!free(h, .9, 3.2, cid)) return false;
+        trees = trees.filter(tr => !inRect(tr.x, tr.y, h, tr.r));
+        houses.push(h); c.n++; ev('house', key, delay); delay += 130;
+        for (const gd of kind === 'S' ? [R(4, 7), 2.5] : [5, 3]){   // private garden behind, if there is room for it
+          const gr = { cx:E[0]+e[0]*uc+o[0]*(T.d+gd/2+.1), cy:E[1]+e[1]*uc+o[1]*(T.d+gd/2+.1), a:th, w, h:gd, soft:1, sid:cur.id, cid };
+          if (free(gr, 0, 2.6, cid)){ gardens.push(gr); break; } }
+        return true; };
+      if (kind !== 'S'){                                    // one slab per side: as many stair cores as fit, then fewer
+        let ok = false; for (let segs = clamp(Math.floor((len + 5) / TYPES[kind].w), 1, 3); segs >= 1 && !ok; segs--){ const w = TYPES[kind].w * segs;
+          ok = put(kind, flank && w > len ? (len - w) / 2 * (e[0]*n[0] + e[1]*n[1]) : 0, segs); }   // a flank slab longer than the patio grows towards the street, never into the far corner
+        if (!ok) tree(E[0]+o[0]*3.5, E[1]+o[1]*3.5, delay);
+        continue; }
+      let u = -len/2 - R(0, 2.5);
+      while (u < len/2 - 2){
+        let ok = false;
+        for (const key of [pickType(), 'B', 'C']){            // try a type, then a smaller one
+          const T = TYPES[key], uc = u + T.w/2;
+          if (uc + T.w/2 > len/2 + 4.5) continue;
+          if (!put(key, uc, 1)) continue;
+          u += T.w + (key === 'B' && rnd() < .7 ? 0 : R(.9, 2.2)); ok = true; break; }
+        if (!ok){ tree(E[0]+e[0]*(u+1.5)+o[0]*3.5, E[1]+e[1]*(u+1.5)+o[1]*3.5, delay); u += 3; }   // no gap: the place stays green
+      } }
+    for (let i = 0; i < 7; i++) tree(pc[0] + R(-24, 24), pc[1] + R(-24, 24), delay + i*60);
+    tree(pc[0] + R(-2, 2), pc[1] + R(-2, 2), delay, true);
+    cur.side = -s; return true; }
+  for (let i = 0; i < 3; i++) tree(x + R(-9, 9), y + R(-9, 9), 0);
+  ev('gap', '', 0); cur.side = -cur.side; return false; }
+function tree(x, y, delay, force){
+  const r = R(1.5, 2.9); if (x < 4 || y < 4 || x > WW-4 || y > WH-4) return;
+  for (const k of keepOut()) if (inRect(x, y, k, r)) return;
+  if (!force){ for (const o of solids()) if (!o.soft && inRect(x, y, o, r)) return;
+    for (const q of sp) if (Math.hypot(q[0]-x, q[1]-y) < 3 + r) return; }
+  for (const t of trees) if (Math.hypot(t.x-x, t.y-y) < (t.r+r)*.8) return;
+  trees.push({ x, y, r, rot:R(0, 6.3), sid:cur ? cur.id : 0, t0:performance.now()+(delay||0) }); ev('tree', '', delay); }
+
+/* ---------- stroke ---------- */
+function begin(x, y){ cur = { id:++sid, pts:[[x, y]], acc:0, next:R(9, 14), side:pick([-1, 1]) }; strokes.push(cur); sp.push([x, y, cur.id]); }
+function move(x, y){ if (!cur) return; x = clamp(x, 0, WW); y = clamp(y, 0, WH); const p = cur.pts[cur.pts.length-1], d = Math.hypot(x-p[0], y-p[1]); if (d < 1.6) return;
+  cur.pts.push([x, y]); sp.push([x, y, cur.id]); cur.acc += d;
+  clearStreet(x, y);
+  if (cur.acc >= cur.next && cur.pts.length > 9){ cur.acc = 0; cur.next = R(RULE.gap-3.5, RULE.gap+3.5); const i = cur.pts.length - 8, a = cur.pts[i-1], b = cur.pts[i+1];
+    cluster(cur.pts[i][0], cur.pts[i][1], Math.atan2(b[1]-a[1], b[0]-a[0])); } }
+function clearStreet(x, y){                                 // the street wins: whatever it runs over is taken away
+  const hit = new Set(); for (const c of clusters) if (inRect(x, y, c.patio, 3)) hit.add(c.patio.cid);
+  const gone = o => hit.has(o.cid) || (!o.lane && inRect(x, y, o, o.T ? 3 : 2.4));
+  const n = houses.length; houses = houses.filter(h => !gone(h)); if (houses.length < n) ev('erase', '', 0);
+  gardens = gardens.filter(o => !gone(o)); lanes = lanes.filter(l => !hit.has(l.cid)); clusters = clusters.filter(c => !hit.has(c.patio.cid));
+  trees = trees.filter(tr => Math.hypot(tr.x-x, tr.y-y) > 3.2 + tr.r); }
+function end(){ if (cur && cur.pts.length < 3){ strokes.pop(); sp = sp.filter(q => q[2] !== cur.id); } cur = null; refresh(); }
+function undo(){ const s = strokes.pop(); if (!s) return; const keep = o => o.sid !== s.id;
+  clusters = clusters.filter(keep); houses = houses.filter(keep); gardens = gardens.filter(keep); lanes = lanes.filter(keep); trees = trees.filter(keep); sp = sp.filter(q => q[2] !== s.id); refresh(); }
+function wipe(){ strokes = []; clusters = []; houses = []; gardens = []; lanes = []; trees = []; sp = []; window.__ev = []; seed = SEED0; nc = 0; sid = 0; }
+function clearAll(){ wipe(); refresh(); }
+function rerun(){                                           // same street, other rules: every stroke is traced again from the same seed
+  const old = strokes.map(s => s.pts); wipe();
+  for (const pts of old){ begin(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) move(pts[i][0], pts[i][1]); cur = null; }
+  ev('rerun', '', 0); refresh(); }
+
+/* ---------- the drawing, once, for the screen and for the PDF ---------- */
+function paint(g, o){
+  const seg = o.seg, S = SEG(), m = o.sheet ? 1 : 0, now = o.now, sc = o.sc;
+  const mm = v => v * sc / 1000, L = v => Math.max(mm(v), o.min || 0);              // paper millimetres to metres; line weights never thinner than a screen pixel
+  const popS = t => now == null || !t.t0 ? 1 : back(clamp((now - t.t0) / 420, 0, 1));
+  const shown = t => now == null || !t.t0 || now >= t.t0;
+  const poly = q => { g.beginPath(); q.forEach(v => g.lineTo(v[0], v[1])); g.closePath(); };
+  const local = (r, s, f) => { g.save(); g.translate(r.cx, r.cy); g.rotate(r.a); if (s !== 1) g.scale(s, s); g.translate(-r.w/2, -r.h/2); f(); g.restore(); };
+  const text = (str, x, y, size, bold, align, col) => { g.save(); g.translate(x, y); const k = mm(size) / 20; g.scale(k, k); g.font = (bold ? '700' : '400') + ' 20px ' + SHEETFONT; g.textAlign = align || 'left'; g.textBaseline = 'alphabetic'; g.fillStyle = col || C.ink; g.fillText(str, 0, 0); g.restore(); };
+  g.fillStyle = o.bg; g.fillRect(o.x0 - 1, o.y0 - 1, o.x1 - o.x0 + 2, o.y1 - o.y0 + 2);
+  g.lineJoin = 'miter'; g.lineCap = 'butt'; g.globalAlpha = 1; g.setLineDash([]);
+  const framed = o.sheet && o.frame; if (framed){ g.save(); g.beginPath(); g.rect(o.x0 + mm(6), o.y0 + mm(6), o.x1 - o.x0 - mm(12), o.y1 - o.y0 - mm(12)); g.clip(); g.beginPath(); }   // with a frame, the drawing stops at the frame
+  for (const r of gardens){ poly(corners(r)); if (seg){ g.fillStyle = S.private; g.fill(); }
+    if (m && !seg){ g.fillStyle = o.on; local(r, 1, () => { for (let x = .5; x < r.w; x += 1.15) for (let y = .5; y < r.h; y += 1.15) g.fillRect(x + hash(x + r.cx, y) * .7 - .35, y + hash(y + r.cy, x) * .7 - .35, .13, .13); }); poly(corners(r)); }
+    g.strokeStyle = o.on; g.lineWidth = L(.1); g.setLineDash([.5, .35]); g.stroke(); g.setLineDash([]); }
+  for (const r of lanes){ poly(corners(r)); g.fillStyle = seg ? S.shared : C.paper; g.fill(); g.strokeStyle = C.ink; g.lineWidth = L(.1); g.stroke(); }
+  g.lineJoin = g.lineCap = 'round';
+  for (const [wd, col] of [[5.6, C.ink], [5.6 - 2*L(.18), seg ? S.street : C.paper]]) for (const s of strokes){ g.strokeStyle = col; g.lineWidth = wd; g.beginPath(); s.pts.forEach(p => g.lineTo(p[0], p[1])); g.stroke(); }
+  for (const s of strokes){ g.strokeStyle = C.ink; g.lineWidth = m ? L(.18) : L(.4); g.setLineDash(m ? [1.6, .9] : []); g.beginPath(); s.pts.forEach(p => g.lineTo(p[0], p[1])); g.stroke(); g.setLineDash([]); }   // the line you drew
+  g.lineJoin = 'miter'; g.lineCap = 'butt';
+  for (const c of clusters){ const p = c.patio, s = popS(c); if (s <= 0) continue;
+    local(p, s, () => { g.fillStyle = seg ? S.shared : C.paper; g.fillRect(0, 0, p.w, p.h);
+      if (!seg){ g.strokeStyle = C.hair; g.lineWidth = L(.08); g.beginPath(); for (let q = 1.5; q < p.w; q += 1.5){ g.moveTo(q, 0); g.lineTo(q, p.h); } for (let q = 1.5; q < p.h; q += 1.5){ g.moveTo(0, q); g.lineTo(p.w, q); } g.stroke(); }
+      g.strokeStyle = C.ink; g.lineWidth = L(.13); g.strokeRect(0, 0, p.w, p.h); }); }
+  for (const r of [...bars, ...houses]){ const f = r.fl || 3; if (!shown(r) || popS(r) < 1 || (!m && f < 2)) continue;   // the shadow tells the height
+    g.fillStyle = C.ink; g.globalAlpha = seg ? .1 : .17; const off = 2.3 * Math.sqrt(f); g.beginPath();
+    for (let k = 0; k <= 6; k++){ const q = corners({ cx:r.cx + off*k/6, cy:r.cy + off*k/6, a:r.a, w:r.w, h:r.h }); g.moveTo(q[0][0], q[0][1]); for (let i = 1; i < 4; i++) g.lineTo(q[i][0], q[i][1]); g.closePath(); }
+    g.fill(); g.globalAlpha = 1; }
+  for (const b of bars){ poly(corners(b)); g.fillStyle = C.raised; g.fill(); g.save(); g.clip(); g.strokeStyle = C.muted; g.lineWidth = L(.08); g.beginPath();
+    for (let d = -90; d < 90; d += 1.1){ g.moveTo(b.cx+d-60, b.cy+60); g.lineTo(b.cx+d+60, b.cy-60); } g.stroke(); g.restore(); poly(corners(b)); g.strokeStyle = C.ink; g.lineWidth = L(.3); g.stroke(); }
+  for (const h of houses){ const s = popS(h); if (s > 0 && shown(h)) house(g, h, s, seg, L, S); }
+  for (const t of trees){ const s = popS(t); if (s <= 0 || !shown(t)) continue;
+    g.save(); g.translate(t.x, t.y); g.scale(s, s);
+    if (m && !seg){ g.fillStyle = C.ink; g.globalAlpha = .13; g.beginPath(); g.arc(1.3, 1.3, t.r, 0, 6.2832); g.fill(); g.globalAlpha = 1; }
+    g.rotate(t.rot); g.fillStyle = C.paper; g.globalAlpha = .85; g.beginPath(); g.arc(0, 0, t.r, 0, 6.2832); g.fill(); g.globalAlpha = 1;
+    g.strokeStyle = C.ink; g.lineWidth = L(.1);
+    for (let i = 0; i < 9; i++){ const a = i*Math.PI*2/9, b = a + Math.PI*2/9; g.beginPath(); g.arc(Math.cos((a+b)/2)*t.r*.82, Math.sin((a+b)/2)*t.r*.82, t.r*.36, a-.9, b+.9); g.stroke(); }
+    g.lineWidth = L(.08); g.beginPath(); for (let i = 0; i < 5; i++){ const a = i*1.257; g.moveTo(0, 0); g.lineTo(Math.cos(a)*t.r*.55, Math.sin(a)*t.r*.55); } g.stroke();
+    g.fillStyle = C.ink; g.beginPath(); g.arc(0, 0, .16, 0, 6.2832); g.fill(); g.restore(); }
+  if (framed) g.restore();
+  if (!o.sheet) return;
+  /* what turns a drawing into a sheet: frame, north, scale bar and title block, all inside the drawing and sized in paper millimetres */
+  const st = stats(), M = mm(o.frame ? 12 : 9), u = mm(1);
+  if (o.frame){ g.strokeStyle = o.on; g.lineWidth = L(.25); g.strokeRect(o.x0 + mm(6), o.y0 + mm(6), o.x1 - o.x0 - mm(12), o.y1 - o.y0 - mm(12)); }
+  const x0 = o.x0, y0 = o.y0, x1 = o.fx1 == null ? o.x1 : o.fx1, y1 = o.fy1 == null ? o.y1 : o.fy1;   // when recording, north, scale and title block stay inside the safe zone
+  for (const c of clusters){ const p = c.patio, i = clusters.indexOf(c) + 1, lb = 'C' + String(i).padStart(2, '0') + (c.fl > 1 ? ' · ' + c.fl + ' fl' : ''), bw = measure(lb, 1) * mm(2.1) / 20 + 2*u;
+    const tx = p.cx, ty = p.cy - p.h/2 + 2.4*u; g.fillStyle = C.paper; g.fillRect(tx - bw/2, ty - 1.7*u, bw, 3*u); text(lb, tx, ty + .55*u, 2.1, 1, 'center'); }
+  const nx = x1 - M - 7*u, ny = y0 + M + 9*u;                // north
+  g.fillStyle = C.paper; g.fillRect(nx - 7*u, ny - 9*u, 14*u, 17*u); g.strokeStyle = C.ink; g.lineWidth = L(.2); g.beginPath(); g.arc(nx, ny + u, 4.6*u, 0, 6.2832); g.stroke();
+  g.fillStyle = C.ink; g.beginPath(); g.moveTo(nx, ny - 3.6*u); g.lineTo(nx + 1.7*u, ny + 3.8*u); g.lineTo(nx, ny + 2.4*u); g.closePath(); g.fill(); g.beginPath(); g.moveTo(nx, ny - 3.6*u); g.lineTo(nx - 1.7*u, ny + 3.8*u); g.lineTo(nx, ny + 2.4*u); g.closePath(); g.stroke();
+  text('N', nx, ny - 5*u, 2.6, 1, 'center');
+  const marks = sc <= 300 ? [0, 5, 10, 15, 20, 30] : [0, 5, 10, 20, 30, 50], bl = marks[5], bx = x0 + M + 2*u, by = y1 - M - 3*u;   // scale bar, in true metres
+  g.fillStyle = C.paper; g.fillRect(bx - 3*u, by - 7.5*u, bl + 12*u, 10.5*u);
+  marks.forEach((v, i, a) => { if (i < a.length-1){ g.fillStyle = i % 2 ? C.paper : C.ink; g.fillRect(bx + v, by - 1.6*u, a[i+1] - v, 1.2*u); g.strokeStyle = C.ink; g.lineWidth = L(.15); g.strokeRect(bx + v, by - 1.6*u, a[i+1] - v, 1.2*u); }
+    text(String(v), bx + v, by - 2.8*u, 2.1, 0, 'center'); });
+  text('m', bx + bl + 2*u, by - .4*u, 2.1, 0); text('1:' + sc, bx, by + 2.2*u, 2.1, 1);
+  const tw = 112*u, th = (seg ? 56 : 37)*u, tx = x1 - M - tw, ty = y1 - M - th;   // title block
+  g.fillStyle = C.paper; g.fillRect(tx, ty, tw, th); g.strokeStyle = C.ink; g.lineWidth = L(.2); g.strokeRect(tx, ty, tw, th);
+  let y = ty + 7*u; const x = tx + 4*u;
+  text('Scenario' + (seg ? ' · measured' : ''), x, y, 4.2, 1);
+  y += 5*u; text(`${st.dw} dwellings · ${st.dwha.toFixed(0)} per ha · ${st.cover.toFixed(0)} % covered · FAR ${st.far.toFixed(2)} · ${st.sharedPer.toFixed(0)} m² shared each`, x, y, 2.5, 0);
+  y += 3.8*u; text(`Syntax: height ${HNAME[RULE.h]} · a cluster every ${(RULE.gap-3.5).toFixed(0)} to ${(RULE.gap+3.5).toFixed(0)} m · patio ${(RULE.patio-2).toFixed(0)} to ${(RULE.patio+2).toFixed(0)} m`, x, y, 2.5, 0);
+  y += 3.8*u; text('Mix ' + mixName() + ': ' + ([[st.n.A, 'patio houses'], [st.n.B, 'row houses'], [st.n.C, 'studios'], [st.n.M + st.n.L, 'flats']].filter(v => v[0]).map(v => v[0] + ' ' + v[1]).join(', ') || 'nothing built yet'), x, y, 2.5, 0);
+  y += 3.6*u; text('Cluster logic studied from Askren Manor (Arenas Basabe Palacios, 2014). Rules, catalogue and drawing by MIAWS.', x, y, 1.9, 0);
+  if (seg){ y += 2.4*u; g.strokeStyle = C.ink; g.lineWidth = L(.15); g.beginPath(); g.moveTo(tx, y); g.lineTo(tx + tw, y); g.stroke();
+    for (const [k, label] of LEG){ y += 3.6*u; g.fillStyle = S[k]; g.fillRect(x, y - 2.2*u, 4.4*u, 2.7*u); g.strokeStyle = C.ink; g.lineWidth = L(.12); g.strokeRect(x, y - 2.2*u, 4.4*u, 2.7*u);
+      text(label, x + 6.4*u, y, 2.5, 0); text(Math.round(st.a[k]) + ' m²', tx + tw - 4*u, y, 2.5, 0, 'right'); } }
+  y = ty + th - 3.2*u; g.strokeStyle = C.ink; g.lineWidth = L(.2); g.beginPath(); g.moveTo(tx, y - 4*u); g.lineTo(tx + tw, y - 4*u); g.stroke();
+  g.fillStyle = C.ink; g.save(); g.translate(x, y - 2.4*u); const wk = 2.4*u / 1021; g.scale(wk, wk); g.beginPath();   // the wordmark, from its vector
+  for (const [ox, d] of WORD){ let px = 0, py = 0; for (const mt of d.matchAll(/([MHVZ])\s*(-?[\d.]+)?\s*(-?[\d.]+)?/g)){ const c = mt[1], a = +mt[2], b = +mt[3];
+      if (c === 'M'){ px = a; py = b; g.moveTo(ox + px, 794 - py); } else if (c === 'H'){ px = a; g.lineTo(ox + px, 794 - py); } else if (c === 'V'){ py = a; g.lineTo(ox + px, 794 - py); } else g.closePath(); } }
+  g.fill('evenodd'); g.restore();
+  text('1:' + sc + ' · ' + o.fmt + ' · ' + (Q.get('date') || new Date().toISOString().slice(0, 10)), tx + tw - 4*u, y, 2.1, 1, 'right'); }
+function house(g, h, s, seg, L, S){
+  const T = h.T, d = T.d;
+  g.save(); g.translate(h.cx, h.cy); g.rotate(h.a); if (s !== 1) g.scale(s, s); g.translate(-h.w/2, -h.h/2);
+  for (let k = 0; k < (h.n || 1); k++){ const w = T.w, fx = x => h.flip ? w - x : x;
+    g.fillStyle = C.ink; g.fillRect(0, 0, w, d);                                          // poche: the whole footprint in ink...
+    for (const [kd, x0, y, rw, rh] of T.rooms){ const x = h.flip ? w - x0 - rw : x0, ex = kd === 'court' ? .14 : .3, i = .06;   // ...and each room cut out of it
+      const l = x < .01 ? ex : i, t = y < .01 ? ex : i, r = x+rw > w-.01 ? ex : i, b = y+rh > d-.01 ? ex : i;
+      g.fillStyle = seg ? S[CAT[kd]] : C.paper; g.fillRect(x+l, y+t, rw-l-r, rh-t-b);
+      if (kd === 'court' && !seg){ g.strokeStyle = C.muted; g.lineWidth = L(.08); g.beginPath(); for (let q = y+t+.6; q < y+rh-b; q += .6){ g.moveTo(x+l, q); g.lineTo(x+rw-r, q); } g.stroke(); } }
+    for (const [x0, y, ow, oh, kind] of T.ops){ const x = h.flip ? w - x0 - ow : x0;        // openings: doors, passages, windows
+      g.fillStyle = C.paper; g.fillRect(x, y, ow, oh);
+      if (kind === 'w'){ g.strokeStyle = C.ink; g.lineWidth = L(.1); g.strokeRect(x, y, ow, oh); g.beginPath(); if (ow > oh){ g.moveTo(x, y+oh/2); g.lineTo(x+ow, y+oh/2); } else { g.moveTo(x+ow/2, y); g.lineTo(x+ow/2, y+oh); } g.stroke(); }
+      if (kind === 'd'){ const hx = h.flip ? x+ow : x, dir = h.flip ? -1 : 1; g.strokeStyle = C.ink; g.lineWidth = L(.15);
+        g.beginPath(); g.moveTo(hx, y+oh); g.lineTo(hx, y+oh+ow); g.stroke(); g.lineWidth = L(.08);
+        g.beginPath(); if (dir > 0) g.arc(hx, y+oh, ow, 0, Math.PI/2); else g.arc(hx, y+oh, ow, Math.PI/2, Math.PI); g.stroke(); } }
+    g.globalAlpha = seg ? .4 : 1;
+    for (const [x, y, rot, v, u] of T.furn){ g.save(); g.translate(fx(x), y); g.rotate(h.flip ? -rot : rot); furn(g, v, u, L); g.restore(); }
+    g.globalAlpha = 1; g.translate(w, 0); }
+  g.restore(); }
+function furn(g, v, u, L){                                  // furniture in plan (glyphs from the Generative brush by Sergio del Castillo Tello)
+  g.fillStyle = C.paper; g.strokeStyle = C.ink; g.lineWidth = Math.max(L(.09), .04); g.lineJoin = 'round';
+  const box = (x,y,w,h) => { g.fillRect(x*u,y*u,w*u,h*u); g.strokeRect(x*u,y*u,w*u,h*u); };
+  const circ = (x,y,r,f) => { g.beginPath(); g.arc(x*u,y*u,r*u,0,6.2832); if (f) g.fill(); g.stroke(); };
+  const line = (...p) => { g.beginPath(); for (let i = 0; i < p.length; i += 2) g.lineTo(p[i]*u, p[i+1]*u); g.stroke(); };
+  switch (v){
+    case 0: box(-.65,-.85,1.3,1.7); box(-.55,-.75,.5,.3); box(.05,-.75,.5,.3); line(-.65,-.3,.65,-.3); break;
+    case 1: for (let i = 0; i < 4; i++){ const a = i*Math.PI/2; box(Math.cos(a)*.7-.14, Math.sin(a)*.7-.14, .28, .28); } circ(0,0,.48,1); break;
+    case 3: box(-.8,-.35,1.6,.7); box(-.8,-.35,1.6,.18); box(-.8,-.17,.18,.52); box(.62,-.17,.18,.52); box(-.4,.62,.8,.4); break;
+    case 5: box(-.6,-.3,.5,.2); circ(-.35,.1,.22,1); box(.15,-.3,.5,.4); circ(.4,-.1,.13,0); break;
+    case 6: box(-1,-.25,2,.5); for (let i = 0; i < 4; i++) circ(-.75+(i%2)*.3, -.1+(i>>1)*.2, .07, 0); box(.3,-.17,.5,.34); break;
+    case 7: box(-.5,-1,1,2); for (let y = -.8; y < .95; y += .2) line(-.5,y,.5,y); line(0,.85,0,-.8); line(-.12,-.62,0,-.8,.12,-.62); break;
+    case 10: circ(0,0,.3,1); for (let i = 0; i < 6; i++){ const a = i*Math.PI/3; line(0,0,Math.cos(a)*.3,Math.sin(a)*.3); } break;
+  } g.lineJoin = 'miter'; }
+const mcv = document.createElement('canvas').getContext('2d');
+function measure(str, bold){ mcv.font = (bold ? '700' : '400') + ' 20px ' + SHEETFONT; return mcv.measureText(str).width; }
+
+/* ---------- figures ---------- */
+function stats(){ const a = { served:0, servant:0, circ:0, private:0, shared:0 }, n = { A:0, B:0, C:0, M:0, L:0 }; let built = 0, foot = 0, dw = 0, walk = 0;
+  const byId = {}; for (const c of clusters) byId[c.patio.cid] = c;
+  for (const h of houses){ const u = h.T.units * h.n * h.fl; n[h.key] += u; dw += u; foot += h.w*h.h; built += h.w*h.h*h.fl;
+    for (const [k,,, rw, rh] of h.T.rooms) a[CAT[k]] += rw*rh*h.n*(k === 'court' ? 1 : h.fl);
+    const c = byId[h.cid]; if (c) walk += (c.lane.h + Math.hypot(h.cx + h.h/2*Math.sin(h.a) - c.patio.cx, h.cy - h.h/2*Math.cos(h.a) - c.patio.cy)) * u; }
+  for (const r of gardens) a.private += r.w*r.h; for (const c of clusters) a.shared += c.patio.w*c.patio.h; for (const l of lanes) a.shared += l.w*l.h;
+  let cov = foot; for (const b of bars) cov += b.w*b.h; const ha = WW*WH/1e4;
+  return { a, n, built, dw, cl:clusters.length, ha, far:built/(WW*WH), dwha:dw/ha, cover:100*cov/(WW*WH), sharedPer:dw ? a.shared/dw : 0, walk:dw ? walk/dw : 0, rule:{ ...RULE } }; }
+const ROWS = [['Dwellings', s => s.dw], ['Dwellings per ha', s => s.dwha.toFixed(0)], ['Ground covered', s => s.cover.toFixed(0) + ' %'], ['Floor area ratio', s => s.far.toFixed(2)], ['Shared m² per dwelling', s => s.sharedPer.toFixed(0)], ['Door to street, m', s => s.walk.toFixed(0)]];
+const mixName = () => RULE.mix < .34 ? 'small' : RULE.mix > .66 ? 'large' : 'even';
+const SL = [['rGap', 'gap'], ['rPatio', 'patio'], ['rMix', 'mix'], ['rH', 'h']];
+function refresh(){ const st = stats(), Ln = 'ABC';
+  $('vGap').textContent = (RULE.gap-3.5).toFixed(0) + ' to ' + (RULE.gap+3.5).toFixed(0) + ' m'; $('vPatio').textContent = (RULE.patio-2).toFixed(0) + ' to ' + (RULE.patio+2).toFixed(0) + ' m'; $('vMix').textContent = mixName(); $('vH').textContent = HNAME[RULE.h];
+  const cols = [0, 1, 2].map(i => kept[i]), h = '<tr><th></th>' + cols.map((_, i) => '<th>' + Ln[i] + '</th>').join('') + '<th>Now</th></tr>' +   // always the same four columns: the table never jumps
+    ROWS.map(([k, f]) => '<tr><td>' + k + '</td>' + cols.map(s => '<td>' + (s ? f(s) : '·') + '</td>').join('') + '<td class="now">' + f(st) + '</td></tr>').join('');
+  if ($('tab').innerHTML !== h) $('tab').innerHTML = h;
+  $('hint').style.opacity = strokes.length || mode !== 'draw' ? 0 : 1; }
+function keep(){ if (!strokes.length) return toast('Trace a street first.'); if (kept.length >= 3) kept.shift(); kept.push(stats()); ev('keep', '', 0); refresh(); }
+let toastT = 0;
+function toast(s){ const t = $('toast'); t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2400); }
+
+/* ---------- a small vector PDF writer that speaks the same language as the canvas ---------- */
+class PdfCtx {
+  constructor(wmm, hmm){ this.wpt = wmm * 72 / 25.4; this.hpt = hmm * 72 / 25.4; this.o = []; this.path = ''; this.has = false; this.gs = {}; this.stack = [];
+    this.fillStyle = '#000'; this.strokeStyle = '#000'; this.lineWidth = 1; this.lineJoin = 'miter'; this.lineCap = 'butt'; this.globalAlpha = 1; this.dash = []; this.font = '400 20px x'; this.textAlign = 'left'; this.textBaseline = 'alphabetic';
+    this.o.push(`${n4(72 / 25.4)} 0 0 ${n4(-72 / 25.4)} 0 ${n4(this.hpt)} cm`); }   // millimetres, y down, like the screen
+  save(){ this.stack.push([this.fillStyle, this.strokeStyle, this.lineWidth, this.lineJoin, this.lineCap, this.globalAlpha, this.dash, this.font, this.textAlign]); this.o.push('q'); }
+  restore(){ [this.fillStyle, this.strokeStyle, this.lineWidth, this.lineJoin, this.lineCap, this.globalAlpha, this.dash, this.font, this.textAlign] = this.stack.pop(); this.o.push('Q'); }
+  translate(x, y){ this.o.push(`1 0 0 1 ${n4(x)} ${n4(y)} cm`); }
+  scale(x, y){ this.o.push(`${n6(x)} 0 0 ${n6(y)} 0 0 cm`); }
+  rotate(a){ const c = Math.cos(a), s = Math.sin(a); this.o.push(`${n6(c)} ${n6(s)} ${n6(-s)} ${n6(c)} 0 0 cm`); }
+  setLineDash(d){ this.dash = d; }
+  beginPath(){ this.path = ''; this.has = false; }
+  moveTo(x, y){ this.path += `${n4(x)} ${n4(y)} m `; this.has = true; }
+  lineTo(x, y){ this.path += `${n4(x)} ${n4(y)} ${this.has ? 'l' : 'm'} `; this.has = true; }
+  closePath(){ this.path += 'h '; this.has = false; }
+  rect(x, y, w, h){ this.path += `${n4(x)} ${n4(y)} ${n4(w)} ${n4(h)} re `; }
+  arc(x, y, r, a0, a1){ let d = a1 - a0; if (d > 6.2831) d = 6.28318531; const n = Math.max(1, Math.ceil(Math.abs(d) / (Math.PI/2))), st = d / n, k = 4/3 * Math.tan(st/4);
+    this.lineTo(x + r*Math.cos(a0), y + r*Math.sin(a0));
+    for (let i = 0; i < n; i++){ const a = a0 + i*st, b = a + st, c0 = Math.cos(a), s0 = Math.sin(a), c1 = Math.cos(b), s1 = Math.sin(b);
+      this.path += `${n4(x + r*(c0 - k*s0))} ${n4(y + r*(s0 + k*c0))} ${n4(x + r*(c1 + k*s1))} ${n4(y + r*(s1 - k*c1))} ${n4(x + r*c1)} ${n4(y + r*s1)} c `; } }
+  col(c){ c = c.replace('#', ''); if (c.length === 3) c = c.replace(/./g, '$&$&'); return [0, 2, 4].map(i => n4(parseInt(c.substr(i, 2), 16) / 255)).join(' '); }
+  alpha(){ const k = 'G' + Math.round(this.globalAlpha * 100); this.gs[k] = this.globalAlpha; return `/${k} gs`; }
+  fill(rule){ this.o.push(`${this.alpha()} ${this.col(this.fillStyle)} rg ${this.path}${rule === 'evenodd' ? 'f*' : 'f'}`); }
+  stroke(){ this.o.push(`${this.alpha()} ${this.col(this.strokeStyle)} RG ${n4(this.lineWidth)} w ${this.lineCap === 'round' ? 1 : 0} J ${this.lineJoin === 'round' ? 1 : 0} j [${this.dash.map(n4).join(' ')}] 0 d ${this.path}S`); }
+  clip(){ this.o.push(`${this.path}W n`); }
+  fillRect(x, y, w, h){ const p = this.path; this.path = `${n4(x)} ${n4(y)} ${n4(w)} ${n4(h)} re `; this.fill(); this.path = p; }
+  strokeRect(x, y, w, h){ const p = this.path; this.path = `${n4(x)} ${n4(y)} ${n4(w)} ${n4(h)} re `; this.stroke(); this.path = p; }
+  fillText(s, x, y){ const bold = /^700/.test(this.font), size = +(/(\d+(?:\.\d+)?)px/.exec(this.font) || [0, 20])[1], w = measure(s, bold) * size / 20;
+    const dx = this.textAlign === 'center' ? -w/2 : this.textAlign === 'right' ? -w : 0;
+    const e = [...s].map(ch => { const c = ch.charCodeAt(0); return c === 40 || c === 41 || c === 92 ? '\\' + ch : c > 255 ? '?' : ch; }).join('');
+    this.o.push(`q ${this.alpha()} ${this.col(this.fillStyle)} rg 1 0 0 -1 ${n4(x + dx)} ${n4(y)} cm BT /${bold ? 'F2' : 'F1'} ${n4(size)} Tf 0 0 Td (${e}) Tj ET Q`); }
+  bytes(){ const body = this.o.join('\n'), objs = [
+      '<< /Type /Catalog /Pages 2 0 R >>', '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${n4(this.wpt)} ${n4(this.hpt)}] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> /ExtGState << ${Object.entries(this.gs).map(([k, v]) => `/${k} << /ca ${n4(v)} /CA ${n4(v)} >>`).join(' ')} >> >> >>`,
+      `<< /Length ${body.length} >>\nstream\n${body}\nendstream`,
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>'];
+    let out = '%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'; const off = [];
+    objs.forEach((s, i) => { off.push(out.length); out += `${i+1} 0 obj\n${s}\nendobj\n`; });
+    const xr = out.length; out += `xref\n0 ${objs.length+1}\n0000000000 65535 f \n` + off.map(v => String(v).padStart(10, '0') + ' 00000 n \n').join('') + `trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;
+    const u = new Uint8Array(out.length); for (let i = 0; i < out.length; i++) u[i] = out.charCodeAt(i) & 255; return u; } }
+const n4 = v => (+v.toFixed(4)).toString(), n6 = v => (+v.toFixed(6)).toString();
+
+/* ---------- export: the same sheet on paper, to scale ---------- */
+function sheetOf(f){ const [lg, sh, sc] = FMT[f], pw = PORT ? sh : lg, ph = PORT ? lg : sh, vw = pw * sc / 1000, vh = ph * sc / 1000;   // paper size in mm; the metres it shows at its scale
+  return { f, pw, ph, sc, x0:(WW - vw)/2, y0:(WH - vh)/2, x1:(WW + vw)/2, y1:(WH + vh)/2 }; }
+function opts(s, extra){ return Object.assign({ now:null, seg:mode === 'seg', sheet:true, frame:edge === 'frame', sc:s.sc, fmt:s.f, min:0, bg:tok(MODES[bgm][0]), on:tok(MODES[bgm][1]), x0:s.x0, y0:s.y0, x1:s.x1, y1:s.y1 }, extra); }
+function save(blob, name){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+const fname = ext => `syntax_scenario_${fmt}_1-${FMT[fmt][2]}${edge === 'bleed' ? '_bleed' : ''}.${ext}`;
+function exportPdf(){ if (!strokes.length) return toast('Trace a street first.');
+  try { const s = sheetOf(fmt), g = new PdfCtx(s.pw, s.ph), k = 1000 / s.sc; g.scale(k, k); g.translate(-s.x0, -s.y0); paint(g, opts(s));
+    save(new Blob([g.bytes()], { type:'application/pdf' }), fname('pdf')); toast(`PDF · ${fmt} · 1:${s.sc}`); } catch (e){ console.error(e); toast('The PDF could not be made. Try PNG.'); } }
+function exportPng(){ if (!strokes.length) return toast('Trace a street first.');
+  try { const s = sheetOf(fmt), dpi = Math.min(300, Math.floor(Math.sqrt(16e6 / (s.pw * s.ph)) * 25.4)), c = document.createElement('canvas'); c.width = Math.round(s.pw * dpi / 25.4); c.height = Math.round(s.ph * dpi / 25.4);   // as sharp as a phone can hold
+    const g = c.getContext('2d'), k = c.width / (s.x1 - s.x0); g.scale(k, k); g.translate(-s.x0, -s.y0); paint(g, opts(s));
+    c.toBlob(b => { if (!b) return toast('The PNG could not be made.'); save(b, fname('png')); toast(`PNG · ${fmt} · 1:${s.sc} · ${dpi} dpi`); }, 'image/png'); } catch (e){ console.error(e); toast('The PNG could not be made.'); } }
+function exportCsv(){ if (!strokes.length) return toast('Trace a street first.'); const Ln = 'ABC', all = [...kept, stats()], head = ['', ...kept.map((_, i) => Ln[i]), 'Now'];
+  const rows = [head, ['Cluster every (m)', ...all.map(s => s.rule.gap)], ['Patio side (m)', ...all.map(s => s.rule.patio)], ['Type mix (0 small, 1 large)', ...all.map(s => s.rule.mix)], ['Height (0 S, 1 M, 2 L)', ...all.map(s => s.rule.h)], ...ROWS.map(([k, f]) => [k, ...all.map(f)])];
+  save(new Blob([rows.map(r => r.join(';')).join('\n')], { type:'text/csv' }), 'syntax_scenarios.csv'); }
+
+/* ---------- screen ---------- */
+function frame(now){ requestAnimationFrame(frame);
+  if (cv.clientWidth !== W || cv.clientHeight !== H) resize();
+  const k = K0 * view.z * dpr, s = sheetOf(fmt), full = { x0:0, y0:0, x1:WW, y1:WH }; if (REC) s.sc = recSc();
+  sg.setTransform(1, 0, 0, 1, 0, 0); sg.fillStyle = tok(MODES[bgm][0]); sg.fillRect(0, 0, cv.width, cv.height);
+  sg.setTransform(k, 0, 0, k, (OX + view.x) * dpr, (OY + view.y) * dpr);
+    paint(sg, Object.assign(opts(mode === 'draw' || REC ? Object.assign({}, s, full) : s, { now, sheet:mode !== 'draw' && !sinCajetin, min:.7 / (K0 * view.z) }), REC ? { fx1:WW - safeM('rr'), fy1:WH - safeM('safe') } : {}));
+  if (!REC){ sg.strokeStyle = tok(MODES[bgm][1]); sg.globalAlpha = .35; sg.lineWidth = 1 / (K0 * view.z); sg.strokeRect(0, 0, WW, WH); sg.globalAlpha = 1; } }   // the edge of the sheet
+function resize(){ W = cv.clientWidth; H = cv.clientHeight; dpr = window.__dpr || Math.min(window.devicePixelRatio || 1, 2); cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+  const open = !REC && !document.body.classList.contains('pclosed') && !document.body.classList.contains('pmin'), wide = W > 700;   // an open panel takes its side (or the bottom, on a phone): the sheet moves over, the panel never covers its centre
+  const pad = REC ? 0 : 10, top = REC ? 0 : 66, left = open && wide ? 364 : 0, bot = REC ? 0 : open && !wide ? Math.round(H * .56) + 70 : 66;
+  K0 = Math.min((W - left - 2*pad) / WW, (H - top - bot) / WH); OX = left + (W - left - WW*K0) / 2; OY = top + (H - top - bot - WH*K0) / 2; fit();
+  document.body.classList.toggle('wide', OX > 180);
+  if (!bars.length) bars = WH > WW ? [{ cx:WW*.82, cy:WH*.12, a:.08, w:11, h:36 }, { cx:WW*.15, cy:WH*.72, a:-.06, w:11, h:34 }, { cx:WW*.2, cy:WH*.3, a:.1, w:30, h:10 }] : [{ cx:WW*.2, cy:WH*.2, a:.16, w:52, h:11 }, { cx:WW*.71, cy:WH*.3, a:-.1, w:11, h:44 }, { cx:WW*.44, cy:WH*.87, a:.03, w:46, h:11 }];   // what was already there
+  if (REC && Q.get('nb')) bars = bars.slice(0, +Q.get('nb')); }
+function fit(){ view.z = clamp(view.z, 1, 8); const mx = WW*K0*(view.z - 1), my = WH*K0*(view.z - 1); view.x = clamp(view.x, -mx - OX*(view.z > 1 ? 1 : 0), OX*(view.z > 1 ? 1 : 0)); view.y = clamp(view.y, -my - OY*(view.z > 1 ? 1 : 0), OY*(view.z > 1 ? 1 : 0)); if (view.z === 1){ view.x = 0; view.y = 0; } }
+function zoomAt(px, py, f){ const z0 = view.z, z1 = clamp(z0 * f, 1, 8), wx = (px - OX - view.x) / z0, wy = (py - OY - view.y) / z0; view.z = z1; view.x = px - OX - wx*z1; view.y = py - OY - wy*z1; fit(); }
+const toWorld = (px, py) => [(px - OX - view.x) / (K0 * view.z), (py - OY - view.y) / (K0 * view.z)];
+function setMode(v){ mode = v; $('bDraw').setAttribute('aria-pressed', v === 'draw'); $('bPlan').setAttribute('aria-pressed', v === 'plan'); $('bSeg').setAttribute('aria-pressed', v === 'seg'); cv.style.cursor = v === 'draw' ? 'crosshair' : 'grab'; refresh(); }
+function setBg(v){ bgm = v; for (const b of $('sw').children) b.setAttribute('aria-pressed', b.dataset.m === v); }
+function showPanel(v, act){ $('rules').scrollTop = 0; document.body.classList.toggle('pclosed', v === 'off'); document.body.classList.toggle('pmin', v === 'min'); for (const [id] of SL) $(id).parentNode.classList.toggle('act', id === act); if (W) resize(); }
+function setExp(){ for (const b of $('xFmt').children) b.setAttribute('aria-pressed', b.dataset.v === fmt); for (const b of $('xEdge').children) b.setAttribute('aria-pressed', b.dataset.v === edge);
+  const s = sheetOf(fmt); $('xNote').textContent = `${fmt} ${PORT ? 'upright' : 'landscape'}, ${s.pw} × ${s.ph} mm, at 1:${s.sc}. The scale bar is drawn in true metres.`; }
+
+/* pointers: one finger or the mouse draws (or pans, out of Draw); two fingers or the wheel zoom */
+const pts = new Map(); let pinch = null, pan = null, sinCajetin = false;
+cv.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' && e.button) return; try { cv.setPointerCapture(e.pointerId); } catch (_){ }
+  pts.set(e.pointerId, [e.clientX, e.clientY]); $('exp').classList.remove('on');
+  if (pts.size === 2){ if (cur){ const id = cur.id; cur = null; if (strokes.length && strokes[strokes.length-1].id === id) undo(); } const [a, b] = [...pts.values()]; pinch = { d:Math.hypot(a[0]-b[0], a[1]-b[1]), cx:(a[0]+b[0])/2, cy:(a[1]+b[1])/2 }; pan = null; return; }
+  if (mode === 'draw'){ const w = toWorld(e.clientX, e.clientY); if (w[0] < 0 || w[1] < 0 || w[0] > WW || w[1] > WH) return; $('hint').style.opacity = 0; begin(w[0], w[1]); }
+  else pan = [e.clientX, e.clientY]; });
+cv.addEventListener('pointermove', e => { if (!pts.has(e.pointerId)) return; pts.set(e.pointerId, [e.clientX, e.clientY]);
+  if (pinch && pts.size >= 2){ const [a, b] = [...pts.values()], d = Math.hypot(a[0]-b[0], a[1]-b[1]), cx = (a[0]+b[0])/2, cy = (a[1]+b[1])/2;
+    view.x += cx - pinch.cx; view.y += cy - pinch.cy; zoomAt(cx, cy, d / pinch.d); pinch = { d, cx, cy }; return; }
+  if (cur){ const w = toWorld(e.clientX, e.clientY); move(w[0], w[1]); } else if (pan){ view.x += e.clientX - pan[0]; view.y += e.clientY - pan[1]; pan = [e.clientX, e.clientY]; fit(); } });
+for (const n of ['pointerup', 'pointercancel']) cv.addEventListener(n, e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; if (!pts.size){ pan = null; if (cur) end(); } });
+cv.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * .0015)); }, { passive:false });
+addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z'){ e.preventDefault(); undo(); } if (e.key === 'Escape'){ $('exp').classList.remove('on'); showPanel('off'); } });
+$('bDraw').onclick = () => setMode('draw'); $('bPlan').onclick = () => setMode('plan'); $('bSeg').onclick = () => { setMode('seg'); showPanel('full'); };
+$('bUndo').onclick = undo; $('bClear').onclick = clearAll; $('bKeep').onclick = keep;
+$('bExp').onclick = () => { $('exp').classList.toggle('on'); setExp(); }; $('xPdf').onclick = exportPdf; $('xPng').onclick = exportPng; $('xCsv').onclick = exportCsv;
+for (const b of $('xFmt').children) b.onclick = () => { fmt = b.dataset.v; setExp(); }; for (const b of $('xEdge').children) b.onclick = () => { edge = b.dataset.v; setExp(); };
+$('syn').onclick = () => showPanel('full'); $('bX').onclick = () => showPanel('off');
+for (const [id, k] of SL){ const el = $(id); el.value = RULE[k]; el.oninput = e => { RULE[k] = +e.target.value; rerun(); window.__api.settle(); }; }   // the panel stays put while a rule moves: the fabric is recalculated live, with no entrance animation. The one-slider panel is for recording only (__api.showPanel('min', id))
+for (const k in MODES){ const b = document.createElement('button'); b.dataset.m = k; b.title = k; b.setAttribute('aria-label', k + ' sheet'); b.style.background = tok(MODES[k][0]); b.onclick = () => setBg(k); $('sw').appendChild(b); }
+
+/* ---------- for recording and for the automatic check ---------- */
+window.__api = { setMode, setBg, showPanel, keep, undo, clearAll, stats, exportPdf, exportPng, exportCsv,
+  set(o){ if (o.fmt) fmt = o.fmt; if (o.edge) edge = o.edge; setExp(); }, sheet:() => sheetOf(fmt), world:() => [WW, WH, PORT], box:() => [OX + view.x, OY + view.y, WW*K0*view.z, WH*K0*view.z],
+  view(z, fx, fy){ view.z = z; view.x = W/2 - OX - fx*WW*K0*z; view.y = H/2 - OY - fy*WH*K0*z; if (!REC) fit(); },
+  patios(){ return clusters.map(c => [c.patio.cx/WW, c.patio.cy/WH, c.n, c.kind]); },
+  nib(x, y, on){ const n = $('nib'); n.style.display = on ? 'block' : 'none'; n.style.transform = `translate(${x}px,${y}px)`; },   // recording: the pen tip or the finger
+  pen(fx, fy, st){ const x = fx*WW, y = fy*WH; if (st === 'down') begin(x, y); else if (st === 'up'){ cur = null; refresh(); } else move(x, y);
+    this.nib(OX + view.x + x*K0*view.z, OY + view.y + y*K0*view.z, st !== 'up'); },
+  slide(id, v){ const el = $(id), k = SL.find(q => q[0] === id)[1], old = RULE[k]; el.value = v; RULE[k] = +el.value; refresh(); RULE[k] = old;   // recording: the thumb moves and the label follows; the fabric waits for the release
+    const r = el.getBoundingClientRect(), t = (el.value - el.min) / (el.max - el.min); this.nib(r.left + 8 + t * (r.width - 16), r.top + r.height / 2, true); },
+  clearKept(){ kept = []; refresh(); },
+  cajetin(v){ sinCajetin = !v; },                           // recording: a close travelling shot over the measured fabric, without the sheet furniture
+  born(i){ const c = clusters[i], t = performance.now(); c.t0 = t; houses.filter(h => h.cid === c.patio.cid).forEach((h, j) => h.t0 = t + 140 + 130*j); },
+  settle(){ const t = performance.now() - 2000; [...clusters, ...houses, ...trees].forEach(o => o.t0 = t); },
+  rule(r, live){ Object.assign(RULE, r); for (const [id, k] of SL) $(id).value = RULE[k]; rerun(); if (!live) this.settle(); return stats(); },
+  trace(paths, upTo = 1, live){ for (const p of paths){ const n = Math.max(2, Math.round(p.length * upTo)); let q = p[0]; begin(q[0]*WW, q[1]*WH);
+      for (let i = 1; i < n; i++){ const d = Math.hypot((p[i][0]-q[0])*WW, (p[i][1]-q[1])*WH), k = Math.ceil(d / 1.8);
+        for (let j = 1; j <= k; j++) move((q[0]+(p[i][0]-q[0])*j/k)*WW, (q[1]+(p[i][1]-q[1])*j/k)*WH); q = p[i]; } cur = null; }
+    if (!live) this.settle(); refresh(); return stats(); } };
+resize(); setBg(bgm); setExp(); refresh(); requestAnimationFrame(frame);
+} catch (e){ console.error(e); $('err').style.display = 'flex'; }
+})();
+</script>
+</body>
+</html>
