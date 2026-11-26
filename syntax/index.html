@@ -8,7 +8,7 @@
 <!-- Syntax · MIAWS Foundations · miaws.com -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#111111;--ink-muted:#6E6E6E;--canvas:#FFFFFF;--hair:#DCDCDC;--raised:#F2F2F2;--lav:#C4B4EE;--lav-wash:#F0EDF7;--lav-hair:#D9D5E4;--plum:#2E2440;--sheet-klein:#002FA7;--sheet-fluor-yellow:#EDFF21;--layer-orange:#FF6A1A;--magenta:#E50DE5;--on-magenta:#0A0A0A;--night:#0A0A0A;--on-dark:#FFFFFF;--on-dark-muted:#9A9A9A}   /* valores de tokens.css del sistema de diseno de MIAWS, copiados por el generador */
+:root{--ink:#111111;--ink-soft:#3A3A3A;--layer-green:#1FBF5B;--ink-muted:#6E6E6E;--canvas:#FFFFFF;--hair:#DCDCDC;--raised:#F2F2F2;--lav:#C4B4EE;--lav-wash:#F0EDF7;--lav-hair:#D9D5E4;--plum:#2E2440;--sheet-klein:#002FA7;--sheet-fluor-yellow:#EDFF21;--layer-orange:#FF6A1A;--magenta:#E50DE5;--on-magenta:#0A0A0A;--night:#0A0A0A;--on-dark:#FFFFFF;--on-dark-muted:#9A9A9A}   /* valores de tokens.css del sistema de diseno de MIAWS, copiados por el generador */
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--canvas);color:var(--ink);font-family:Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
 canvas{position:fixed;inset:0;width:100%;height:100%;cursor:crosshair;touch-action:none;display:block}
@@ -50,6 +50,7 @@ body.pmin #rules>*:not(.sl){display:none} body.pmin #rules .sl>div:not(.act){dis
 #miaws-cinta a{background:var(--magenta);color:var(--on-magenta);text-decoration:none;font-weight:700;padding:9px 15px;white-space:nowrap}
 #nib{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--ink);border:3px solid var(--canvas);pointer-events:none;display:none;z-index:9}
 #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:30px;text-align:center;background:var(--canvas);font-size:16px;line-height:1.4}
+@media (max-height:620px) and (min-width:701px){#rules{padding:10px 14px} #rules .note{display:none} #rules label{margin-top:4px} #rules input[type=range]{height:18px} #rules table{margin-top:8px} #rules td,#rules th{padding:2px 0 2px 8px} #rules .keep{margin-top:8px;padding:8px} #rules .sw{margin-top:8px} #rules .sw button{height:18px}}
 body.rec #bar,body.rec #miaws-cinta,body.rec #autor,body.rec #hint,body.rec #syn{display:none}
 /* recording: the panel is a line (one slider) or a table at the bottom, inside the safe zone and at reading size */
 body.rec #rules{left:var(--rl,72px);right:var(--rr,160px);top:auto;bottom:calc(var(--safe,0px) + 8px);width:auto;max-width:none;max-height:none;transform:none;font-size:24px;border-width:2px;padding:18px 24px}
@@ -68,10 +69,10 @@ body.rec #rules input[type=range]{height:34px} body.rec #rules input[type=range]
   <button class="x" id="bX" aria-label="Close">×</button>
   <h2 class="lab">Syntax</h2>
   <div class="sl">
-  <div><label>Cluster every <b id="vGap"></b></label><input id="rGap" type="range" min="14" max="34" step="1" aria-label="Distance between clusters"></div>
-  <div><label>Patio side <b id="vPatio"></b></label><input id="rPatio" type="range" min="8" max="15" step=".5" aria-label="Patio side"></div>
-  <div><label>Type mix <b id="vMix"></b></label><input id="rMix" type="range" min="0" max="1" step=".05" aria-label="Type mix"></div>
-  <div><label>Height <b id="vH"></b></label><input id="rH" type="range" min="0" max="2" step="1" aria-label="Height"></div>
+  <div><label>Cluster every <b id="vGap"></b></label><input id="rGap" type="range" min="14" max="34" step=".25" aria-label="Distance between clusters"></div>
+  <div><label>Patio side <b id="vPatio"></b></label><input id="rPatio" type="range" min="8" max="15" step=".1" aria-label="Patio side"></div>
+  <div><label>Type mix <b id="vMix"></b></label><input id="rMix" type="range" min="0" max="1" step=".01" aria-label="Type mix"></div>
+  <div><label>Height <b id="vH"></b></label><input id="rH" type="range" min="0" max="2" step=".02" aria-label="Height"></div>
   </div>
   <table id="tab"></table>
   <button class="keep lab" id="bKeep">Keep scenario</button>
@@ -102,9 +103,10 @@ try {
 const cv = $('c'), sg = cv.getContext('2d'); if (!sg) throw new Error('no canvas');
 const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const C = { ink:tok('--ink'), muted:tok('--ink-muted'), paper:tok('--canvas'), hair:tok('--hair'), raised:tok('--raised'),
-            lav:tok('--lav'), lavw:tok('--lav-wash'), lavh:tok('--lav-hair'), plum:tok('--plum') };
+            lav:tok('--lav'), lavw:tok('--lav-wash'), lavh:tok('--lav-hair'), plum:tok('--plum'), green:tok('--layer-green'), soft:tok('--ink-soft') };
+const ZONE = ['--sheet-klein', '--sheet-fluor-yellow', '--layer-orange', '--magenta'];   // ?color=1: each street's patios take one of the sheet colours, like the zoning of a competition panel
 const MODES = { paper:['--canvas', '--ink'], klein:['--sheet-klein', '--canvas'], yellow:['--sheet-fluor-yellow', '--ink'], orange:['--layer-orange', '--ink'], magenta:['--magenta', '--on-magenta'] };
-const FMT = { A3:[420, 297, 500], A2:[594, 420, 350], A1:[841, 594, 250] };       // long side, short side (mm) and the scale that puts the sheet on it
+const FMT = { A3:[420, 297, 500], A2:[594, 420, 350], A1:[841, 594, 250], A0:[1189, 841, 350] };   // A0 only with ?world=A0: the potential of a whole quarter on one panel       // long side, short side (mm) and the scale that puts the sheet on it
 const WORD = [[0.0, "M454 454V568H0V0H114V454H454V0H568V454ZM1021 0V454H908V568H568V454H908V0Z"], [1249.0, "M227 681V794H113V681ZM227 0V568H0V454H114V0Z"], [1703.0, "M454 113H113V227H0V113H113V0H568V454H454V568H113V454H454V340H113V227H454Z"], [2498.0, "M227 113V340H113V568H0V340H113V113H227V0H340V113ZM681 113V227H567V454H454V227H567V113H681V0H794V113ZM1022 340V568H908V340ZM794 340V113H908V340ZM340 227V113H454V227Z"], [3633.0, "M0 454V341H114V227H454V113H568V227H454V341H114V454ZM568 454V568H114V454ZM0 113V0H454V113Z"]];
 const SHEETFONT = 'Helvetica, Arial, sans-serif';
 const Q = new URLSearchParams(location.search);
@@ -120,13 +122,14 @@ const hash = (a, b) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453;
 /* ---------- the sheet: one world, in metres. A-series, upright on a tall screen ---------- */
 const PORT = Q.get('o') ? Q.get('o') === 'p' : innerHeight > innerWidth;
 let WW = PORT ? 148.5 : 210, WH = PORT ? 210 : 148.5;
-if (REC && Q.get('ww')){ WW = +Q.get('ww'); WH = WW * innerHeight / innerWidth; }   // recording only: the sheet takes the shape of the screen
+if (REC && Q.get('ww')){ WW = +Q.get('ww'); WH = WW * innerHeight / innerWidth; }
+const POT = Q.get('world') === 'A0'; if (POT){ WW = (PORT ? 841 : 1189) * .35; WH = (PORT ? 1189 : 841) * .35; }   // the potential: a world the size of an A0 at 1:350   // recording only: the sheet takes the shape of the screen
 let W = 0, H = 0, dpr = 1, K0 = 1, OX = 0, OY = 0, view = { z:1, x:0, y:0 };
-let mode = 'draw', bgm = MODES[Q.get('bg')] ? Q.get('bg') : 'paper', fmt = 'A3', edge = 'frame';
+let mode = 'draw', bgm = MODES[Q.get('bg')] ? Q.get('bg') : 'paper', fmt = POT ? 'A0' : 'A3', edge = 'frame';
 const RULE = { gap:21.5, patio:11, mix:.5, h:0 };
 const HNAME = ['S · 1 floor', 'M · 2 to 4 floors', 'L · 4 to 6 floors'];
 let strokes = [], clusters = [], houses = [], gardens = [], trees = [], lanes = [], bars = [], sp = [], kept = [];
-let sid = 0, nc = 0, cur = null;
+let sid = 0, cur = null;
 window.__ev = [];
 const ev = (k, t, d) => window.__ev.push([k, t, performance.now() + (d || 0)]);
 
@@ -156,11 +159,12 @@ const TYPES = {
   L: Object.assign(slab(14.4, 12), { name:'Block' })        // two flats of about 80 m² per floor and core
 };
 const CAT = { living:'served', bed:'served', kitchen:'servant', bath:'servant', stairs:'servant', hall:'circ', court:'private' };
-const SEG = () => ({ served:C.lav, servant:C.plum, circ:C.lavw, private:C.raised, shared:C.lavh, street:C.hair });
+const SEG = () => ({ served:tok('--on-dark-muted'), servant:tok('--ink-soft'), circ:C.hair, private:C.paper, shared:C.raised, street:C.raised });   // measured in ink and greys: the only colours of the piece are the five sheet colours
 const LEG = [['served','Served: living, bedroom'],['servant','Servant: kitchen, bath, stairs'],['circ','Circulation'],['shared','Shared patio and lane'],['private','Private patio and garden']];
 // height rule. S: houses. M: two walk-up clusters in three, the third stays houses. L: blocks, with one walk-up cluster in every four
-function kindFor(i){ if (RULE.h < .5) return ['S', 1]; if (RULE.h < 1.5) return i % 3 === 2 ? ['S', 1] : ['M', [3, 4, 2][i % 3]]; return i % 4 === 1 ? ['M', 4] : ['L', [5, 4, 6, 4][i % 4]]; }
-const pickType = () => { const a = .05 + .4*RULE.mix, c = .05 + .4*(1-RULE.mix), r = rnd() * (a + .5 + c); return r < a ? 'A' : r < a + .5 ? 'B' : 'C'; };
+function kindFor(id, k){ const h = RULE.h, t1 = HR(.12, 1.3, id, k, 20), t2 = 1 + HR(.08, .9, id, k, 21);   // each cluster steps up at its own point of the slider, so height grows one cluster at a time while you drag
+  if (h < t1) return ['S', 1]; if (h < t2) return ['M', 2 + Math.round(2 * clamp((h - t1) / Math.max(t2 - t1, .05), 0, 1))]; return ['L', 4 + Math.round(2 * clamp((h - t2) / Math.max(2 - t2, .05), 0, 1))]; }
+const pickType = v => { const a = .05 + .4*RULE.mix, c = .05 + .4*(1-RULE.mix), r = v * (a + .5 + c); return r < a ? 'A' : r < a + .5 ? 'B' : 'C'; };   // v: the fixed draw of that slot. Moving the mix only flips the slots that sit on the threshold
 
 /* ---------- geometry: oriented rectangles {cx,cy,a,w,h} ---------- */
 function corners(r, p = 0){ const c = Math.cos(r.a), s = Math.sin(r.a), w = r.w/2 + p, h = r.h/2 + p;
@@ -173,98 +177,176 @@ function overlap(A, B, p){ const a = corners(A, p), b = corners(B, 0);
   return true; }
 function inRect(x, y, r, p){ const c = Math.cos(r.a), s = Math.sin(r.a), dx = x-r.cx, dy = y-r.cy;
   return Math.abs(dx*c+dy*s) <= r.w/2+p && Math.abs(-dx*s+dy*c) <= r.h/2+p; }
+const PARK_GAP = 6;                                           // what was already there (parks, ruins, a church, a cloister, a wall) keeps 6 m clear of anything new
 const solids = () => [...bars, ...clusters.map(c => c.patio), ...houses, ...gardens, ...lanes];
 const box = (x0, y0, x1, y1) => ({ cx:(x0+x1)/2, cy:(y0+y1)/2, a:0, w:x1-x0, h:y1-y0 });
 const recSc = () => Math.round(WW * 1000 / (PORT ? 297 : 420) / 50) * 50;                 // recording: the scale that puts this world on an A3
 const safeM = k => REC ? (+Q.get(k) || 0) / K0 : 0;                                        // recording: the safe margins of the social networks, in metres
-function keepOut(){ const U = (REC ? recSc() : 500) / 1000, M = 12 * U, X1 = WW - safeM('rr'), Y1 = WH - safeM('safe');   // nothing is built under the title block, the scale bar or the north
+function keepOut(){ if (Q.get('nk')) return [];   // ?nk=1: a city with no sheet furniture to keep clear
+  const U = (REC && !POT ? recSc() : FMT[fmt][2]) / 1000, M = 12 * U, X1 = WW - safeM('rr'), Y1 = WH - safeM('safe');   // nothing is built under the title block, the scale bar or the north
   return [box(X1 - M - 112*U - 2, Y1 - M - 56*U - 2, X1, Y1), box(0, Y1 - M - 11*U - 2, M + (U <= .3 ? 30 : 50) + 14*U, Y1), box(X1 - M - 15*U, 0, X1, M + 18*U + 2)]; }
 function free(r, pad, streetPad, cid){                      // the rule every piece obeys: a gap or nothing
   for (const q of corners(r)) if (q[0] < 3 || q[1] < 3 || q[0] > WW-3 || q[1] > WH-3) return false;
   for (const k of keepOut()) if (overlap(r, k, 0)) return false;
   for (const o of solids()){ const mine = cid && o.cid === cid;
-    if (overlap(r, o, mine ? -.05 : o.soft ? 0 : Math.max(pad, o.fl > 1 && r.fl > 1 ? Math.min(o.fl, r.fl) * 1.5 : 0))) return false; }   // tall neighbours keep half their height apart
+    if (overlap(r, o, mine ? -.05 : o.soft ? 0 : o.site ? Math.max(pad, PARK_GAP) : Math.max(pad, o.fl > 1 && r.fl > 1 ? Math.min(o.fl, r.fl) * 1.5 : 0))) return false; }   // tall neighbours keep half their height apart
   if (streetPad) for (const q of sp) if (inRect(q[0], q[1], r, streetPad)) return false;
   return true; }
 
-/* ---------- the brush: a cluster every few metres of street ---------- */
-function cluster(x, y, t){
-  const a = Math.round(t / (Math.PI/12)) * (Math.PI/12);
-  const ux = [Math.cos(a), Math.sin(a)], uy = [-Math.sin(a), Math.cos(a)], [kind, fl] = kindFor(nc);
+/* ---------- the fabric is a pure function of the streets and the rules. Every random choice hangs from its place
+   (street, cluster, side, slot), so moving a rule moves the geometry: it never reshuffles it or draws it again ---------- */
+const hsh = (...a) => { let h = (SEED0 * 374761393) | 0; for (const v of a){ h = Math.imul(h ^ Math.round(v * 1000 + 7919), 668265263); h ^= h >>> 15; } h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+const HR = (a, b, ...k) => a + hsh(...k) * (b - a);
+let born = new Map(), born0 = new Map(), lag = 0, quiet = false;
+function birth(key){ const now = performance.now(); let t = born0.get(key);
+  if (t == null){ const rj = !quiet && key[0] !== 't' && window.__rej;   // recording: window.__rej is a list of beat times; each new patio or house takes the next free beat
+    if (rj){ while (rj.length && rj[0] < now + 20) rj.shift(); t = rj.length ? rj.shift() : now + lag; } else { t = quiet ? now - 2000 : now + lag; if (!quiet) lag += 120; } }
+  born.set(key, t); return t; }   // what was already there keeps its age; only what is new pops in   // what was already there keeps its age; only what is new pops in
+function along(pts, d){ for (let i = 1; i < pts.length; i++){ const a = pts[i-1], b = pts[i], l = Math.hypot(b[0]-a[0], b[1]-a[1]); if (d <= l) return [a[0] + (b[0]-a[0])*d/l, a[1] + (b[1]-a[1])*d/l]; d -= l; } return pts[pts.length-1]; }
+const lengthOf = pts => { let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]); return L; };
+function fluid(pts){                                        // the hand shakes, the street does not: a moving average takes the peaks out, one Chaikin pass rounds what is left
+  let p = pts; if (p.length < 4) return p;
+  for (let n = 0; n < 3; n++) p = p.map((v, i) => { if (i === 0 || i === p.length - 1) return v; let x = 0, y = 0, c = 0; for (let j = Math.max(0, i - 2); j <= Math.min(p.length - 1, i + 2); j++){ x += p[j][0]; y += p[j][1]; c++; } return [x / c, y / c]; });
+  const q = [p[0]]; for (let i = 0; i < p.length - 1; i++){ const a = p[i], b = p[i+1]; q.push([.75*a[0] + .25*b[0], .75*a[1] + .25*b[1]], [.25*a[0] + .75*b[0], .25*a[1] + .75*b[1]]); } q.push(p[p.length - 1]); return q; }
+function build(q){
+  quiet = !!q; born0 = born; born = new Map(); lag = 0; clusters = []; houses = []; gardens = []; lanes = []; trees = []; const gaps = [];
+  sp = []; for (const s of strokes){ s.sm = fluid(s.pts); for (const p of s.sm) sp.push([p[0], p[1], s.id]); }
+  for (const s of strokes){ const L = lengthOf(s.sm); let d = HR(9, 14, s.id, 1), k = 0; const s0 = hsh(s.id, 2) < .5 ? -1 : 1;
+    while (d < L - 12){                                     // a cluster every few metres of street, 12 m behind the pencil
+      const p = along(s.sm, d), a0 = along(s.sm, Math.max(d - 3, 0)), b0 = along(s.sm, Math.min(d + 3, L));
+      cluster(s.id, k, p[0], p[1], Math.atan2(b0[1]-a0[1], b0[0]-a0[0]), k % 2 ? -s0 : s0, gaps);   // one side, then the other: each cluster has its own side, so one that fails does not push the rest across the street
+      d += HR(RULE.gap - 3.5, RULE.gap + 3.5, s.id, k, 3); k++; } }
+  for (const c of clusters){ const p = c.patio;             // trees last: in the patio, around it, and wherever a house found no gap
+    tree(p.cx + HR(-2, 2, c.sid, c.k, 40), p.cy + HR(-2, 2, c.sid, c.k, 41), [c.sid, c.k, 42], true);
+    for (let i = 0; i < 7; i++) tree(p.cx + HR(-24, 24, c.sid, c.k, 50 + i), p.cy + HR(-24, 24, c.sid, c.k, 60 + i), [c.sid, c.k, 70 + i]); }
+  for (const [x, y, ...key] of gaps) tree(x, y, key); }
+const GIRO = Q.get('giro') === '1';                          // ?giro=1: clusters may turn off the street's square (and patios vary more) to fit the gaps
+function cluster(id, k, x, y, t, side0, gaps){
+  const a0 = Math.round(t / (Math.PI/12)) * (Math.PI/12);    // clusters snap to 15 degrees: neighbours end up almost parallel
+  const [kind, fl] = kindFor(id, k), PV = GIRO ? 4 : 2;
   const minSide = kind === 'S' ? 0 : fl * 3 * .8;           // facing fronts stay about one building height apart
-  for (const s of [cur.side, -cur.side]) for (let k = 0; k < 3; k++){
-    const pw = Math.max(R(RULE.patio-2, RULE.patio+2) - k, minSide), ph = Math.max(R(RULE.patio-2, RULE.patio+2) - k, minSide), L = R(3.5, 8) - k, n = [uy[0]*s, uy[1]*s];
+  const turn = GIRO ? [[0, .26, -.26, .52, -.52][Math.floor(hsh(id, k, 30) * 5)], 0, .26, -.26, .52, -.52, .79, -.79] : [0];
+  for (const dr of turn){ const a = a0 + dr, ux = [Math.cos(a), Math.sin(a)], uy = [-Math.sin(a), Math.cos(a)];
+  for (const sg of [side0]) for (let j = 0; j < 4; j++){        // each cluster keeps to its side of the street: if it does not fit, it shrinks or stays out. It never jumps across
+    const pw = Math.max(HR(RULE.patio-PV, RULE.patio+PV, id, k, 4) - j, minSide), ph = Math.max(HR(RULE.patio-PV, RULE.patio+PV, id, k, 5) - j, minSide), L = HR(3.5, 8, id, k, 6) - j, n = [uy[0]*sg, uy[1]*sg];
     const pc = [x + n[0]*(3 + L + ph/2), y + n[1]*(3 + L + ph/2)];
     const patio = { cx:pc[0], cy:pc[1], a, w:pw, h:ph };
     if (!free(patio, 1.2, 3.4)) continue;
-    const cid = 'c' + (++nc), lane = { cx:x + n[0]*(3+L)/2, cy:y + n[1]*(3+L)/2, a, w:3, h:3+L, soft:1, lane:1, sid:cur.id, cid };
-    const c = { patio, lane, sid:cur.id, t0:performance.now(), n:0, fl, kind }; patio.sid = cur.id; patio.cid = cid;
-    clusters.push(c); lanes.push(lane); ev('patio', kind, 0);
-    let delay = 140;
+    const cid = id + ':' + k, lane = { cx:x + n[0]*(3+L)/2, cy:y + n[1]*(3+L)/2, a, w:3, h:3+L, soft:1, lane:1, sid:id, cid };
+    const c = { patio, lane, sid:id, k, bk:'c' + cid, t0:birth('c' + cid), n:0, fl, kind }; patio.sid = id; patio.cid = cid;
+    clusters.push(c); lanes.push(lane); let si = 0;
     for (const [o, len, half, flank] of [[n, pw, ph/2, 0], [ux, ph, pw/2, 1], [[-ux[0],-ux[1]], ph, pw/2, 1]]){   // far side first, then both flanks
-      const th = Math.atan2(o[1], o[0]) - Math.PI/2, e = [Math.cos(th), Math.sin(th)];
+      si++; const th = Math.atan2(o[1], o[0]) - Math.PI/2, e = [Math.cos(th), Math.sin(th)];
       const E = [pc[0] + o[0]*half, pc[1] + o[1]*half];
-      const put = (key, uc, segs) => { const T = TYPES[key], w = T.w * segs;
-        const h = { cx:E[0]+e[0]*uc+o[0]*T.d/2, cy:E[1]+e[1]*uc+o[1]*T.d/2, a:th, w, h:T.d, key, T, n:segs, fl, flip:kind === 'S' && rnd() < .5, sid:cur.id, cid, t0:performance.now()+delay };
+      const put = (key, uc, segs, slot) => { const T = TYPES[key], w = T.w * segs, bk = 'h' + cid + ':' + si + ':' + slot;
+        const h = { cx:E[0]+e[0]*uc+o[0]*T.d/2, cy:E[1]+e[1]*uc+o[1]*T.d/2, a:th, w, h:T.d, key, T, n:segs, fl, flip:kind === 'S' && hsh(id, k, si, slot, 7) < .5, sid:id, cid, bk, t0:0 };
         if (!free(h, .9, 3.2, cid)) return false;
-        trees = trees.filter(tr => !inRect(tr.x, tr.y, h, tr.r));
-        houses.push(h); c.n++; ev('house', key, delay); delay += 130;
-        for (const gd of kind === 'S' ? [R(4, 7), 2.5] : [5, 3]){   // private garden behind, if there is room for it
-          const gr = { cx:E[0]+e[0]*uc+o[0]*(T.d+gd/2+.1), cy:E[1]+e[1]*uc+o[1]*(T.d+gd/2+.1), a:th, w, h:gd, soft:1, sid:cur.id, cid };
+        h.t0 = birth(bk); houses.push(h); c.n++;
+        for (const gd of kind === 'S' ? [HR(4, 7, id, k, si, slot, 8), 2.5] : [5, 3]){   // private garden behind, if there is room for it
+          const gr = { cx:E[0]+e[0]*uc+o[0]*(T.d+gd/2+.1), cy:E[1]+e[1]*uc+o[1]*(T.d+gd/2+.1), a:th, w, h:gd, soft:1, sid:id, cid };
           if (free(gr, 0, 2.6, cid)){ gardens.push(gr); break; } }
         return true; };
       if (kind !== 'S'){                                    // one slab per side: as many stair cores as fit, then fewer
         let ok = false; for (let segs = clamp(Math.floor((len + 5) / TYPES[kind].w), 1, 3); segs >= 1 && !ok; segs--){ const w = TYPES[kind].w * segs;
-          ok = put(kind, flank && w > len ? (len - w) / 2 * (e[0]*n[0] + e[1]*n[1]) : 0, segs); }   // a flank slab longer than the patio grows towards the street, never into the far corner
-        if (!ok) tree(E[0]+o[0]*3.5, E[1]+o[1]*3.5, delay);
+          ok = put(kind, flank && w > len ? (len - w) / 2 * (e[0]*n[0] + e[1]*n[1]) : 0, segs, 0); }   // a flank slab longer than the patio grows towards the street, never into the far corner
+        if (!ok) gaps.push([E[0]+o[0]*3.5, E[1]+o[1]*3.5, id, k, si, 90]);
         continue; }
-      let u = -len/2 - R(0, 2.5);
-      while (u < len/2 - 2){
+      let u = -len/2 - HR(0, 2.5, id, k, si, 9), slot = 0;
+      while (u < len/2 - 2){ slot++;
         let ok = false;
-        for (const key of [pickType(), 'B', 'C']){            // try a type, then a smaller one
+        for (const key of [pickType(hsh(id, k, si, slot, 10)), 'B', 'C']){   // try a type, then a smaller one
           const T = TYPES[key], uc = u + T.w/2;
           if (uc + T.w/2 > len/2 + 4.5) continue;
-          if (!put(key, uc, 1)) continue;
-          u += T.w + (key === 'B' && rnd() < .7 ? 0 : R(.9, 2.2)); ok = true; break; }
-        if (!ok){ tree(E[0]+e[0]*(u+1.5)+o[0]*3.5, E[1]+e[1]*(u+1.5)+o[1]*3.5, delay); u += 3; }   // no gap: the place stays green
+          if (!put(key, uc, 1, slot)) continue;
+          u += T.w + (key === 'B' && hsh(id, k, si, slot, 11) < .7 ? 0 : HR(.9, 2.2, id, k, si, slot, 12)); ok = true; break; }
+        if (!ok){ gaps.push([E[0]+e[0]*(u+1.5)+o[0]*3.5, E[1]+e[1]*(u+1.5)+o[1]*3.5, id, k, si, slot, 91]); u += 3; }   // no gap: the place stays green
       } }
-    for (let i = 0; i < 7; i++) tree(pc[0] + R(-24, 24), pc[1] + R(-24, 24), delay + i*60);
-    tree(pc[0] + R(-2, 2), pc[1] + R(-2, 2), delay, true);
-    cur.side = -s; return true; }
-  for (let i = 0; i < 3; i++) tree(x + R(-9, 9), y + R(-9, 9), 0);
-  ev('gap', '', 0); cur.side = -cur.side; return false; }
-function tree(x, y, delay, force){
-  const r = R(1.5, 2.9); if (x < 4 || y < 4 || x > WW-4 || y > WH-4) return;
+    return sg; } }
+  for (let i = 0; i < 3; i++) gaps.push([x + HR(-9, 9, id, k, 13 + i), y + HR(-9, 9, id, k, 16 + i), id, k, 92 + i]);
+  return 0; }
+function tree(x, y, key, force){
+  const r = HR(1.5, 2.9, ...key, 1); if (x < 4 || y < 4 || x > WW-4 || y > WH-4) return;
   for (const k of keepOut()) if (inRect(x, y, k, r)) return;
-  if (!force){ for (const o of solids()) if (!o.soft && inRect(x, y, o, r)) return;
-    for (const q of sp) if (Math.hypot(q[0]-x, q[1]-y) < 3 + r) return; }
+  for (const o of solids()) if (!o.soft && inRect(x, y, o, force ? -r : r)) return;
+  for (const q of sp) if (Math.hypot(q[0]-x, q[1]-y) < 3 + r) return;
   for (const t of trees) if (Math.hypot(t.x-x, t.y-y) < (t.r+r)*.8) return;
-  trees.push({ x, y, r, rot:R(0, 6.3), sid:cur ? cur.id : 0, t0:performance.now()+(delay||0) }); ev('tree', '', delay); }
+  const bk = 't' + key.join(':'); trees.push({ x, y, r, rot:HR(0, 6.3, ...key, 2), sid:key[0], bk, t0:birth(bk) }); }
 
 /* ---------- stroke ---------- */
-function begin(x, y){ cur = { id:++sid, pts:[[x, y]], acc:0, next:R(9, 14), side:pick([-1, 1]) }; strokes.push(cur); sp.push([x, y, cur.id]); }
-function move(x, y){ if (!cur) return; x = clamp(x, 0, WW); y = clamp(y, 0, WH); const p = cur.pts[cur.pts.length-1], d = Math.hypot(x-p[0], y-p[1]); if (d < 1.6) return;
-  cur.pts.push([x, y]); sp.push([x, y, cur.id]); cur.acc += d;
-  clearStreet(x, y);
-  if (cur.acc >= cur.next && cur.pts.length > 9){ cur.acc = 0; cur.next = R(RULE.gap-3.5, RULE.gap+3.5); const i = cur.pts.length - 8, a = cur.pts[i-1], b = cur.pts[i+1];
-    cluster(cur.pts[i][0], cur.pts[i][1], Math.atan2(b[1]-a[1], b[0]-a[0])); } }
-function clearStreet(x, y){                                 // the street wins: whatever it runs over is taken away
-  const hit = new Set(); for (const c of clusters) if (inRect(x, y, c.patio, 3)) hit.add(c.patio.cid);
-  const gone = o => hit.has(o.cid) || (!o.lane && inRect(x, y, o, o.T ? 3 : 2.4));
-  const n = houses.length; houses = houses.filter(h => !gone(h)); if (houses.length < n) ev('erase', '', 0);
-  gardens = gardens.filter(o => !gone(o)); lanes = lanes.filter(l => !hit.has(l.cid)); clusters = clusters.filter(c => !hit.has(c.patio.cid));
-  trees = trees.filter(tr => Math.hypot(tr.x-x, tr.y-y) > 3.2 + tr.r); }
-function end(){ if (cur && cur.pts.length < 3){ strokes.pop(); sp = sp.filter(q => q[2] !== cur.id); } cur = null; refresh(); }
-function undo(){ const s = strokes.pop(); if (!s) return; const keep = o => o.sid !== s.id;
-  clusters = clusters.filter(keep); houses = houses.filter(keep); gardens = gardens.filter(keep); lanes = lanes.filter(keep); trees = trees.filter(keep); sp = sp.filter(q => q[2] !== s.id); refresh(); }
-function wipe(){ strokes = []; clusters = []; houses = []; gardens = []; lanes = []; trees = []; sp = []; window.__ev = []; seed = SEED0; nc = 0; sid = 0; }
+function begin(x, y){ cur = { id:++sid, pts:[[x, y]] }; strokes.push(cur); sp.push([x, y, cur.id]); }
+function move(x, y){ if (!cur) return; x = clamp(x, 0, WW); y = clamp(y, 0, WH); const p = cur.pts[cur.pts.length-1]; if (Math.hypot(x-p[0], y-p[1]) < 1.6) return;
+  cur.pts.push([x, y]); sp.push([x, y, cur.id]); build(); }   // the street wins: nothing is placed where a street runs, whenever it was traced
+function end(){ if (cur && cur.pts.length < 3){ const id = cur.id; strokes = strokes.filter(s => s.id !== id); sp = sp.filter(q => q[2] !== id); build(true); } cur = null; refresh(); }
+function undo(){ const s = strokes.pop(); if (!s) return; sp = sp.filter(q => q[2] !== s.id); build(true); refresh(); }
+function wipe(){ strokes = []; sp = []; born = new Map(); window.__ev = []; sid = 0; build(true); }
 function clearAll(){ wipe(); refresh(); }
-function rerun(){                                           // same street, other rules: every stroke is traced again from the same seed
-  const old = strokes.map(s => s.pts); wipe();
-  for (const pts of old){ begin(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) move(pts[i][0], pts[i][1]); cur = null; }
-  ev('rerun', '', 0); refresh(); }
+function rerun(){ build(true); refresh(); }                 // same streets, other rules: the fabric follows the rule, live
 
 /* ---------- the drawing, once, for the screen and for the PDF ---------- */
+function treeGlyph(g, t, s, m, seg, L){                      // one tree, seen from above: a crown of nine lobes and its trunk
+  g.save(); g.translate(t.x, t.y); g.scale(s, s);
+  if (m && !seg){ g.fillStyle = C.ink; g.globalAlpha = .13; g.beginPath(); g.arc(1.3, 1.3, t.r, 0, 6.2832); g.fill(); g.globalAlpha = 1; }
+  g.rotate(t.rot); g.fillStyle = C.paper; g.globalAlpha = .85; g.beginPath(); g.arc(0, 0, t.r, 0, 6.2832); g.fill(); g.globalAlpha = 1;
+  g.strokeStyle = C.ink; g.lineWidth = L(.1);
+  for (let i = 0; i < 9; i++){ const a = i*Math.PI*2/9, b = a + Math.PI*2/9; g.beginPath(); g.arc(Math.cos((a+b)/2)*t.r*.82, Math.sin((a+b)/2)*t.r*.82, t.r*.36, a-.9, b+.9); g.stroke(); }
+  g.lineWidth = L(.08); g.beginPath(); for (let i = 0; i < 5; i++){ const a = i*1.257; g.moveTo(0, 0); g.lineTo(Math.cos(a)*t.r*.55, Math.sin(a)*t.r*.55); } g.stroke();
+  g.fillStyle = C.ink; g.beginPath(); g.arc(0, 0, .16, 0, 6.2832); g.fill(); g.restore(); }
+function parkShape(b){                                     // a park is an orthogonal figure on the grid: a rectangle, an L, a T or a step, never a soft blob
+  if (b.pg) return b.pg; const sd = b.seed || 1, w = b.w, h = b.h, k = Math.floor(hsh(sd, 1) * 4), cw = w * (.35 + .2 * hsh(sd, 2)), ch = h * (.35 + .2 * hsh(sd, 3)), c = Math.cos(b.a), s = Math.sin(b.a);
+  const x0 = -w/2, x1 = w/2, y0 = -h/2, y1 = h/2;
+  const q = k === 0 ? [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]                                                      // rectangle
+          : k === 1 ? [[x0, y0], [x1 - cw, y0], [x1 - cw, y0 + ch], [x1, y0 + ch], [x1, y1], [x0, y1]]              // L: one corner taken out
+          : k === 2 ? [[x0, y0], [x1, y0], [x1, y1 - ch], [x0 + cw * 1.4, y1 - ch], [x0 + cw * 1.4, y1], [x0, y1]] // step
+          : [[x0, y0], [x1, y0], [x1, y0 + ch], [x0 + w/2 + cw/2, y0 + ch], [x0 + w/2 + cw/2, y1], [x0 + w/2 - cw/2, y1], [x0 + w/2 - cw/2, y0 + ch], [x0, y0 + ch]];   // T
+  return b.pg = q.map(([x, y]) => [b.cx + x*c - y*s, b.cy + x*s + y*c]); }
+function inPoly(x, y, q){ let inn = false; for (let i = 0, j = q.length - 1; i < q.length; j = i++){ const xi = q[i][0], yi = q[i][1], xj = q[j][0], yj = q[j][1]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inn = !inn; } return inn; }
+function heritage(g, b, L){                                  // what history left, in plan: thick walls in poché. A church, a ruin, a cloister, a city wall
+  const w = b.w, h = b.h, sd = b.seed || 1, ink = b.kind === 'ruin' ? C.soft : C.ink;
+  g.save(); g.translate(b.cx, b.cy); g.rotate(b.a); g.fillStyle = ink; g.strokeStyle = ink; g.lineJoin = 'miter';
+  const wall = (x0, y0, x1, y1, T) => { const dx = x1 - x0, dy = y1 - y0, l = Math.hypot(dx, dy); g.save(); g.translate(x0, y0); g.rotate(Math.atan2(dy, dx)); g.fillRect(0, -T/2, l, T); g.restore(); };
+  if (b.kind === 'church'){
+    const nw = h * .42, td = nw * .95, xa = w/2 - nw/2, xt = xa - nw * .15 - td/2, x0 = -w/2, T = 1.3;
+    g.beginPath(); g.moveTo(x0, -nw/2); g.lineTo(xt - td/2, -nw/2); g.lineTo(xt - td/2, -h/2); g.lineTo(xt + td/2, -h/2); g.lineTo(xt + td/2, -nw/2); g.lineTo(xa, -nw/2);
+    g.arc(xa, 0, nw/2, -Math.PI/2, Math.PI/2); g.lineTo(xt + td/2, nw/2); g.lineTo(xt + td/2, h/2); g.lineTo(xt - td/2, h/2); g.lineTo(xt - td/2, nw/2); g.lineTo(x0, nw/2); g.closePath();
+    g.fillStyle = C.paper; g.fill(); g.lineWidth = T; g.stroke(); g.fillRect(x0 - T/2, -1.1, T, 2.2); g.fillStyle = ink;   // the west door
+    for (let x = x0 + 3.2; x < xt - td/2 - 1; x += 3.6) for (const y of [-nw * .27, nw * .27]) g.fillRect(x - .45, y - .45, .9, .9);   // the nave's piers
+    g.lineWidth = L(.1); g.beginPath(); g.moveTo(xt - td/2, -nw/2); g.lineTo(xt + td/2, nw/2); g.moveTo(xt - td/2, nw/2); g.lineTo(xt + td/2, -nw/2); g.stroke();   // the crossing's vault
+    g.fillRect(xa + nw * .12, -1, 1.4, 2); }
+  else if (b.kind === 'ruin'){
+    const T = 1.6, side = (x0, y0, x1, y1, k) => { const l = Math.hypot(x1 - x0, y1 - y0); let d = 0, i = 0;
+      while (d < l){ const s = Math.min(HR(2.5, 6, sd, k, i, 1), l - d); if (hsh(sd, k, i, 2) > .3) wall(x0 + (x1 - x0) * d/l, y0 + (y1 - y0) * d/l, x0 + (x1 - x0) * (d + s)/l, y0 + (y1 - y0) * (d + s)/l, T);
+        else for (let r = 0; r < 4; r++) g.fillRect(x0 + (x1 - x0) * (d + s * HR(0, 1, sd, k, i, r, 3))/l + HR(-1.4, 1.4, sd, k, i, r, 4), y0 + (y1 - y0) * (d + s * HR(0, 1, sd, k, i, r, 5))/l + HR(-1.4, 1.4, sd, k, i, r, 6), .5, .5);   // rubble where the wall fell
+        d += s; i++; } };
+    side(-w/2, -h/2, w/2, -h/2, 1); side(w/2, -h/2, w/2, h/2, 2); side(w/2, h/2, -w/2, h/2, 3); side(-w/2, h/2, -w/2, -h/2, 4); side(-w * .12, -h/2, -w * .12, h * .1, 5);
+    for (let x = -w/2 + 4; x < w/2 - 3; x += 3.4){ g.beginPath(); g.arc(x, h * .22, .55, 0, 6.2832); g.fill(); } }   // a row of column bases
+  else if (b.kind === 'cloister'){
+    const T = 1.2, k = 3.6; g.lineWidth = T; g.strokeRect(-w/2, -h/2, w, h); g.fillStyle = C.paper; g.fillRect(-1.2, h/2 - T/2, 2.4, T); g.fillStyle = ink;
+    for (let x = -w/2 + k; x <= w/2 - k + .01; x += 2.4) for (const y of [-h/2 + k, h/2 - k]) g.fillRect(x - .3, y - .3, .6, .6);
+    for (let y = -h/2 + k + 2.4; y < h/2 - k - .01; y += 2.4) for (const x of [-w/2 + k, w/2 - k]) g.fillRect(x - .3, y - .3, .6, .6);
+    g.lineWidth = L(.1); g.beginPath(); g.moveTo(-w/2 + k, 0); g.lineTo(w/2 - k, 0); g.moveTo(0, -h/2 + k); g.lineTo(0, h/2 - k); g.stroke();
+    g.lineWidth = .4; g.beginPath(); g.arc(0, 0, 1.2, 0, 6.2832); g.fillStyle = C.paper; g.fill(); g.stroke(); }
+  else if (b.kind === 'temple'){                            // a temple: the cella's thick walls on a podium, a ring of columns around it
+    const T = 1.1, cw = w * .56, chh = h * .5; g.lineWidth = .25; g.strokeRect(-w/2, -h/2, w, h); g.lineWidth = T; g.strokeRect(-cw/2 + w * .08, -chh/2, cw, chh); g.fillStyle = C.paper; g.fillRect(-cw/2 + w * .08 - T/2, -1, T, 2); g.fillStyle = ink;
+    const st = 2.4; for (let x = -w/2 + 1.5; x <= w/2 - 1.5 + .01; x += (w - 3) / Math.round((w - 3) / st)) for (const y of [-h/2 + 1.5, h/2 - 1.5]){ g.beginPath(); g.arc(x, y, .5, 0, 6.2832); g.fill(); }
+    for (let y = -h/2 + 1.5 + st; y < h/2 - 1.5 - .01; y += st) for (const x of [-w/2 + 1.5, w/2 - 1.5]){ g.beginPath(); g.arc(x, y, .5, 0, 6.2832); g.fill(); } }
+  else if (b.kind === 'rotunda'){                           // a round chapel: a thick ring, a small apse and a ring of piers inside
+    const r = Math.min(w, h) / 2 - 1, T = 1.3; g.lineWidth = T; g.beginPath(); g.arc(0, 0, r, 0, 6.2832); g.stroke(); g.beginPath(); g.arc(r + 1.2, 0, 2.2, -Math.PI/2, Math.PI/2); g.stroke();
+    g.fillStyle = C.paper; g.fillRect(-r - T/2, -1, T, 2); g.fillStyle = ink;
+    for (let i = 0; i < 8; i++){ const a = i * Math.PI / 4; g.fillRect(Math.cos(a) * r * .55 - .4, Math.sin(a) * r * .55 - .4, .8, .8); } }
+  else if (b.kind === 'wall'){
+    const T = 2.2, n = Math.max(2, Math.round(w / 18));
+    wall(-w/2, 0, -2, 0, T); wall(2, 0, w/2, 0, T);
+    for (let i = 0; i <= n; i++){ const x = -w/2 + w * i / n; if (Math.abs(x) < 4) continue; g.beginPath(); g.arc(x, 0, 2.6, 0, 6.2832); g.fill(); } }
+  g.restore(); }
+function grove(b){                                          // the trees of a park, once: a loose grid inside its outline, never on a street
+  if (b.tr && b.trn === sp.length) return b.tr; b.tr = []; b.trn = sp.length;   // recomputed when a street is traced: no tree stands on a street
+  const c = Math.cos(b.a), s = Math.sin(b.a), st = 4.3, pg = parkShape(b);
+  for (let u = -b.w/2 + 2.4; u <= b.w/2 - 2.4; u += st) for (let v = -b.h/2 + 2.4; v <= b.h/2 - 2.4; v += st){
+    const k = [Math.round(u*10), Math.round(v*10), Math.round(b.cx)], x = u + HR(-1.1, 1.1, ...k, 1), y = v + HR(-1.1, 1.1, ...k, 2);
+    if (hsh(...k, 3) < .1) continue;
+    const wx = b.cx + x*c - y*s, wy = b.cy + x*s + y*c; const rr = 2.4; if (![[0, 0], [rr, 0], [-rr, 0], [0, rr], [0, -rr]].every(([dx, dy]) => inPoly(wx + dx, wy + dy, pg))) continue;   // the whole crown inside the outline if (sp.some(q => Math.abs(q[0]-wx) < 5.5 && Math.abs(q[1]-wy) < 5.5 && Math.hypot(q[0]-wx, q[1]-wy) < 5.5)) continue;
+    b.tr.push({ x:b.cx + x*c - y*s, y:b.cy + x*s + y*c, r:HR(1.4, 2.3, ...k, 4), rot:HR(0, 6.3, ...k, 5) }); }
+  return b.tr; }
 function paint(g, o){
   const seg = o.seg, S = SEG(), m = o.sheet ? 1 : 0, now = o.now, sc = o.sc;
   const mm = v => v * sc / 1000, L = v => Math.max(mm(v), o.min || 0);              // paper millimetres to metres; line weights never thinner than a screen pixel
@@ -277,39 +359,38 @@ function paint(g, o){
   g.lineJoin = 'miter'; g.lineCap = 'butt'; g.globalAlpha = 1; g.setLineDash([]);
   const framed = o.sheet && o.frame; if (framed){ g.save(); g.beginPath(); g.rect(o.x0 + mm(6), o.y0 + mm(6), o.x1 - o.x0 - mm(12), o.y1 - o.y0 - mm(12)); g.clip(); g.beginPath(); }   // with a frame, the drawing stops at the frame
   for (const r of gardens){ poly(corners(r)); if (seg){ g.fillStyle = S.private; g.fill(); }
+    else if (Q.get('color')){ g.fillStyle = tok(ZONE[Math.floor(hsh(r.sid, 9) * 4)]); g.globalAlpha = .55; g.fill(); g.globalAlpha = 1; }   // ?color=1: the gardens take their street's colour too, so the colour holds when the city is seen from far
     if (m && !seg){ g.fillStyle = o.on; local(r, 1, () => { for (let x = .5; x < r.w; x += 1.15) for (let y = .5; y < r.h; y += 1.15) g.fillRect(x + hash(x + r.cx, y) * .7 - .35, y + hash(y + r.cy, x) * .7 - .35, .13, .13); }); poly(corners(r)); }
     g.strokeStyle = o.on; g.lineWidth = L(.1); g.setLineDash([.5, .35]); g.stroke(); g.setLineDash([]); }
   for (const r of lanes){ poly(corners(r)); g.fillStyle = seg ? S.shared : C.paper; g.fill(); g.strokeStyle = C.ink; g.lineWidth = L(.1); g.stroke(); }
   g.lineJoin = g.lineCap = 'round';
-  for (const [wd, col] of [[5.6, C.ink], [5.6 - 2*L(.18), seg ? S.street : C.paper]]) for (const s of strokes){ g.strokeStyle = col; g.lineWidth = wd; g.beginPath(); s.pts.forEach(p => g.lineTo(p[0], p[1])); g.stroke(); }
-  for (const s of strokes){ g.strokeStyle = C.ink; g.lineWidth = m ? L(.18) : L(.4); g.setLineDash(m ? [1.6, .9] : []); g.beginPath(); s.pts.forEach(p => g.lineTo(p[0], p[1])); g.stroke(); g.setLineDash([]); }   // the line you drew
+  for (const [wd, col] of [[5.6, C.ink], [5.6 - 2*L(.18), seg ? S.street : C.paper]]) for (const s of strokes){ g.strokeStyle = col; g.lineWidth = wd; g.beginPath(); (s.sm || s.pts).forEach(p => g.lineTo(p[0], p[1])); g.stroke(); }
+  for (const s of strokes){ g.strokeStyle = C.ink; g.lineWidth = m ? L(.18) : L(.4); g.setLineDash(m ? [1.6, .9] : []); g.beginPath(); (s.sm || s.pts).forEach(p => g.lineTo(p[0], p[1])); g.stroke(); g.setLineDash([]); }   // the line you drew
   g.lineJoin = 'miter'; g.lineCap = 'butt';
   for (const c of clusters){ const p = c.patio, s = popS(c); if (s <= 0) continue;
-    local(p, s, () => { g.fillStyle = seg ? S.shared : C.paper; g.fillRect(0, 0, p.w, p.h);
+    local(p, s, () => { g.fillStyle = seg ? S.shared : Q.get('color') ? tok(ZONE[Math.floor(hsh(c.sid, 9) * 4)]) : C.paper; g.fillRect(0, 0, p.w, p.h);
       if (!seg){ g.strokeStyle = C.hair; g.lineWidth = L(.08); g.beginPath(); for (let q = 1.5; q < p.w; q += 1.5){ g.moveTo(q, 0); g.lineTo(q, p.h); } for (let q = 1.5; q < p.h; q += 1.5){ g.moveTo(0, q); g.lineTo(p.w, q); } g.stroke(); }
       g.strokeStyle = C.ink; g.lineWidth = L(.13); g.strokeRect(0, 0, p.w, p.h); }); }
-  for (const r of [...bars, ...houses]){ const f = r.fl || 3; if (!shown(r) || popS(r) < 1 || (!m && f < 2)) continue;   // the shadow tells the height
-    g.fillStyle = C.ink; g.globalAlpha = seg ? .1 : .17; const off = 2.3 * Math.sqrt(f); g.beginPath();
-    for (let k = 0; k <= 6; k++){ const q = corners({ cx:r.cx + off*k/6, cy:r.cy + off*k/6, a:r.a, w:r.w, h:r.h }); g.moveTo(q[0][0], q[0][1]); for (let i = 1; i < 4; i++) g.lineTo(q[i][0], q[i][1]); g.closePath(); }
-    g.fill(); g.globalAlpha = 1; }
-  for (const b of bars){ poly(corners(b)); g.fillStyle = C.raised; g.fill(); g.save(); g.clip(); g.strokeStyle = C.muted; g.lineWidth = L(.08); g.beginPath();
-    for (let d = -90; d < 90; d += 1.1){ g.moveTo(b.cx+d-60, b.cy+60); g.lineTo(b.cx+d+60, b.cy-60); } g.stroke(); g.restore(); poly(corners(b)); g.strokeStyle = C.ink; g.lineWidth = L(.3); g.stroke(); }
+  const blur = o.px && g.filter !== undefined; if (blur) g.filter = 'blur(' + Math.max(1, .8 * o.px).toFixed(1) + 'px)';   // a soft shadow: gaussian blur on screen and in the PNG
+  g.fillStyle = C.ink; g.globalAlpha = seg ? .1 : .2;
+  for (const r of houses){ const f = r.fl || 3; if (!shown(r) || popS(r) < 1 || (!m && f < 2)) continue;   // the shadow tells the height
+    const off = 2.3 * Math.sqrt(f); poly(hull([...corners(r), ...corners({ cx:r.cx + off, cy:r.cy + off, a:r.a, w:r.w, h:r.h })])); g.fill(); }
+  g.globalAlpha = 1; if (blur) g.filter = 'none';
+  for (const b of bars){ if (b.kind && b.kind !== 'park'){ heritage(g, b, L); continue; }
+    poly(parkShape(b));                                      // a park: a green wash on paper, a dashed edge and a grove inside
+    if (seg){ g.fillStyle = S.shared; g.fill(); } else if (bgm === 'paper'){ g.fillStyle = C.green; g.globalAlpha = .16; g.fill(); g.globalAlpha = 1; }
+    g.strokeStyle = C.ink; g.lineWidth = L(.18); g.setLineDash([1.4, .9]); g.stroke(); g.setLineDash([]);
+    for (const t of grove(b)) treeGlyph(g, t, 1, m, seg, L);
+    if (m){ const bw = measure('Park', 1) * mm(2.1) / 20 + mm(2); g.fillStyle = C.paper; g.fillRect(b.cx - bw/2, b.cy - mm(1.7), bw, mm(3)); text('Park', b.cx, b.cy + mm(.55), 2.1, 1, 'center'); } }
   for (const h of houses){ const s = popS(h); if (s > 0 && shown(h)) house(g, h, s, seg, L, S); }
-  for (const t of trees){ const s = popS(t); if (s <= 0 || !shown(t)) continue;
-    g.save(); g.translate(t.x, t.y); g.scale(s, s);
-    if (m && !seg){ g.fillStyle = C.ink; g.globalAlpha = .13; g.beginPath(); g.arc(1.3, 1.3, t.r, 0, 6.2832); g.fill(); g.globalAlpha = 1; }
-    g.rotate(t.rot); g.fillStyle = C.paper; g.globalAlpha = .85; g.beginPath(); g.arc(0, 0, t.r, 0, 6.2832); g.fill(); g.globalAlpha = 1;
-    g.strokeStyle = C.ink; g.lineWidth = L(.1);
-    for (let i = 0; i < 9; i++){ const a = i*Math.PI*2/9, b = a + Math.PI*2/9; g.beginPath(); g.arc(Math.cos((a+b)/2)*t.r*.82, Math.sin((a+b)/2)*t.r*.82, t.r*.36, a-.9, b+.9); g.stroke(); }
-    g.lineWidth = L(.08); g.beginPath(); for (let i = 0; i < 5; i++){ const a = i*1.257; g.moveTo(0, 0); g.lineTo(Math.cos(a)*t.r*.55, Math.sin(a)*t.r*.55); } g.stroke();
-    g.fillStyle = C.ink; g.beginPath(); g.arc(0, 0, .16, 0, 6.2832); g.fill(); g.restore(); }
+  for (const t of trees){ const s = popS(t); if (s > 0 && shown(t)) treeGlyph(g, t, s, m, seg, L); }
   if (framed) g.restore();
   if (!o.sheet) return;
   /* what turns a drawing into a sheet: frame, north, scale bar and title block, all inside the drawing and sized in paper millimetres */
   const st = stats(), M = mm(o.frame ? 12 : 9), u = mm(1);
   if (o.frame){ g.strokeStyle = o.on; g.lineWidth = L(.25); g.strokeRect(o.x0 + mm(6), o.y0 + mm(6), o.x1 - o.x0 - mm(12), o.y1 - o.y0 - mm(12)); }
   const x0 = o.x0, y0 = o.y0, x1 = o.fx1 == null ? o.x1 : o.fx1, y1 = o.fy1 == null ? o.y1 : o.fy1;   // when recording, north, scale and title block stay inside the safe zone
-  for (const c of clusters){ const p = c.patio, i = clusters.indexOf(c) + 1, lb = 'C' + String(i).padStart(2, '0') + (c.fl > 1 ? ' · ' + c.fl + ' fl' : ''), bw = measure(lb, 1) * mm(2.1) / 20 + 2*u;
+  for (const c of clusters){ const p = c.patio, i = clusters.indexOf(c) + 1, lb = 'C' + String(i).padStart(2, '0') + (c.fl > 1 && c.n ? ' · ' + c.fl + ' fl' : ''), bw = measure(lb, 1) * mm(2.1) / 20 + 2*u;
     const tx = p.cx, ty = p.cy - p.h/2 + 2.4*u; g.fillStyle = C.paper; g.fillRect(tx - bw/2, ty - 1.7*u, bw, 3*u); text(lb, tx, ty + .55*u, 2.1, 1, 'center'); }
   const nx = x1 - M - 7*u, ny = y0 + M + 9*u;                // north
   g.fillStyle = C.paper; g.fillRect(nx - 7*u, ny - 9*u, 14*u, 17*u); g.strokeStyle = C.ink; g.lineWidth = L(.2); g.beginPath(); g.arc(nx, ny + u, 4.6*u, 0, 6.2832); g.stroke();
@@ -325,8 +406,8 @@ function paint(g, o){
   let y = ty + 7*u; const x = tx + 4*u;
   text('Scenario' + (seg ? ' · measured' : ''), x, y, 4.2, 1);
   y += 5*u; text(`${st.dw} dwellings · ${st.dwha.toFixed(0)} per ha · ${st.cover.toFixed(0)} % covered · FAR ${st.far.toFixed(2)} · ${st.sharedPer.toFixed(0)} m² shared each`, x, y, 2.5, 0);
-  y += 3.8*u; text(`Syntax: height ${HNAME[RULE.h]} · a cluster every ${(RULE.gap-3.5).toFixed(0)} to ${(RULE.gap+3.5).toFixed(0)} m · patio ${(RULE.patio-2).toFixed(0)} to ${(RULE.patio+2).toFixed(0)} m`, x, y, 2.5, 0);
-  y += 3.8*u; text('Mix ' + mixName() + ': ' + ([[st.n.A, 'patio houses'], [st.n.B, 'row houses'], [st.n.C, 'studios'], [st.n.M + st.n.L, 'flats']].filter(v => v[0]).map(v => v[0] + ' ' + v[1]).join(', ') || 'nothing built yet'), x, y, 2.5, 0);
+  y += 3.8*u; text(`Syntax: height ${HNAME[Math.round(RULE.h)]} · a cluster every ${(RULE.gap-3.5).toFixed(0)} to ${(RULE.gap+3.5).toFixed(0)} m · patio ${(RULE.patio-2).toFixed(0)} to ${(RULE.patio+2).toFixed(0)} m`, x, y, 2.5, 0);
+  y += 3.8*u; text('Mix ' + mixName() + ': ' + ([[st.n.A, 'patio house'], [st.n.B, 'row house'], [st.n.C, 'studio'], [st.n.M + st.n.L, 'flat']].filter(v => v[0]).map(v => v[0] + ' ' + v[1] + (v[0] === 1 ? '' : 's')).join(', ') || 'nothing built yet'), x, y, 2.5, 0);
   y += 3.6*u; text('Cluster logic studied from Askren Manor (Arenas Basabe Palacios, 2014). Rules, catalogue and drawing by MIAWS.', x, y, 1.9, 0);
   if (seg){ y += 2.4*u; g.strokeStyle = C.ink; g.lineWidth = L(.15); g.beginPath(); g.moveTo(tx, y); g.lineTo(tx + tw, y); g.stroke();
     for (const [k, label] of LEG){ y += 3.6*u; g.fillStyle = S[k]; g.fillRect(x, y - 2.2*u, 4.4*u, 2.7*u); g.strokeStyle = C.ink; g.lineWidth = L(.12); g.strokeRect(x, y - 2.2*u, 4.4*u, 2.7*u);
@@ -337,6 +418,10 @@ function paint(g, o){
       if (c === 'M'){ px = a; py = b; g.moveTo(ox + px, 794 - py); } else if (c === 'H'){ px = a; g.lineTo(ox + px, 794 - py); } else if (c === 'V'){ py = a; g.lineTo(ox + px, 794 - py); } else g.closePath(); } }
   g.fill('evenodd'); g.restore();
   text('1:' + sc + ' · ' + o.fmt + ' · ' + (Q.get('date') || new Date().toISOString().slice(0, 10)), tx + tw - 4*u, y, 2.1, 1, 'right'); }
+function hull(p){ p = p.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]); const x = (o, a, b) => (a[0]-o[0])*(b[1]-o[1]) - (a[1]-o[1])*(b[0]-o[0]), lo = [], up = [];   // the outline of a building and its cast copy
+  for (const q of p){ while (lo.length > 1 && x(lo[lo.length-2], lo[lo.length-1], q) <= 0) lo.pop(); lo.push(q); }
+  for (const q of p.slice().reverse()){ while (up.length > 1 && x(up[up.length-2], up[up.length-1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1)); }
 function house(g, h, s, seg, L, S){
   const T = h.T, d = T.d;
   g.save(); g.translate(h.cx, h.cy); g.rotate(h.a); if (s !== 1) g.scale(s, s); g.translate(-h.w/2, -h.h/2);
@@ -380,13 +465,13 @@ function stats(){ const a = { served:0, servant:0, circ:0, private:0, shared:0 }
     for (const [k,,, rw, rh] of h.T.rooms) a[CAT[k]] += rw*rh*h.n*(k === 'court' ? 1 : h.fl);
     const c = byId[h.cid]; if (c) walk += (c.lane.h + Math.hypot(h.cx + h.h/2*Math.sin(h.a) - c.patio.cx, h.cy - h.h/2*Math.cos(h.a) - c.patio.cy)) * u; }
   for (const r of gardens) a.private += r.w*r.h; for (const c of clusters) a.shared += c.patio.w*c.patio.h; for (const l of lanes) a.shared += l.w*l.h;
-  let cov = foot; for (const b of bars) cov += b.w*b.h; const ha = WW*WH/1e4;
+  const cov = foot, ha = WW*WH/1e4;   // ground covered counts the new fabric only, like the floor area ratio: at one floor both say the same
   return { a, n, built, dw, cl:clusters.length, ha, far:built/(WW*WH), dwha:dw/ha, cover:100*cov/(WW*WH), sharedPer:dw ? a.shared/dw : 0, walk:dw ? walk/dw : 0, rule:{ ...RULE } }; }
 const ROWS = [['Dwellings', s => s.dw], ['Dwellings per ha', s => s.dwha.toFixed(0)], ['Ground covered', s => s.cover.toFixed(0) + ' %'], ['Floor area ratio', s => s.far.toFixed(2)], ['Shared m² per dwelling', s => s.sharedPer.toFixed(0)], ['Door to street, m', s => s.walk.toFixed(0)]];
 const mixName = () => RULE.mix < .34 ? 'small' : RULE.mix > .66 ? 'large' : 'even';
 const SL = [['rGap', 'gap'], ['rPatio', 'patio'], ['rMix', 'mix'], ['rH', 'h']];
 function refresh(){ const st = stats(), Ln = 'ABC';
-  $('vGap').textContent = (RULE.gap-3.5).toFixed(0) + ' to ' + (RULE.gap+3.5).toFixed(0) + ' m'; $('vPatio').textContent = (RULE.patio-2).toFixed(0) + ' to ' + (RULE.patio+2).toFixed(0) + ' m'; $('vMix').textContent = mixName(); $('vH').textContent = HNAME[RULE.h];
+  $('vGap').textContent = (RULE.gap-3.5).toFixed(0) + ' to ' + (RULE.gap+3.5).toFixed(0) + ' m'; $('vPatio').textContent = (RULE.patio-2).toFixed(0) + ' to ' + (RULE.patio+2).toFixed(0) + ' m'; $('vMix').textContent = mixName(); $('vH').textContent = HNAME[Math.round(RULE.h)];
   const cols = [0, 1, 2].map(i => kept[i]), h = '<tr><th></th>' + cols.map((_, i) => '<th>' + Ln[i] + '</th>').join('') + '<th>Now</th></tr>' +   // always the same four columns: the table never jumps
     ROWS.map(([k, f]) => '<tr><td>' + k + '</td>' + cols.map(s => '<td>' + (s ? f(s) : '·') + '</td>').join('') + '<td class="now">' + f(st) + '</td></tr>').join('');
   if ($('tab').innerHTML !== h) $('tab').innerHTML = h;
@@ -448,7 +533,7 @@ function exportPdf(){ if (!strokes.length) return toast('Trace a street first.')
     save(new Blob([g.bytes()], { type:'application/pdf' }), fname('pdf')); toast(`PDF · ${fmt} · 1:${s.sc}`); } catch (e){ console.error(e); toast('The PDF could not be made. Try PNG.'); } }
 function exportPng(){ if (!strokes.length) return toast('Trace a street first.');
   try { const s = sheetOf(fmt), dpi = Math.min(300, Math.floor(Math.sqrt(16e6 / (s.pw * s.ph)) * 25.4)), c = document.createElement('canvas'); c.width = Math.round(s.pw * dpi / 25.4); c.height = Math.round(s.ph * dpi / 25.4);   // as sharp as a phone can hold
-    const g = c.getContext('2d'), k = c.width / (s.x1 - s.x0); g.scale(k, k); g.translate(-s.x0, -s.y0); paint(g, opts(s));
+    const g = c.getContext('2d'), k = c.width / (s.x1 - s.x0); g.scale(k, k); g.translate(-s.x0, -s.y0); paint(g, opts(s, { px:k }));
     c.toBlob(b => { if (!b) return toast('The PNG could not be made.'); save(b, fname('png')); toast(`PNG · ${fmt} · 1:${s.sc} · ${dpi} dpi`); }, 'image/png'); } catch (e){ console.error(e); toast('The PNG could not be made.'); } }
 function exportCsv(){ if (!strokes.length) return toast('Trace a street first.'); const Ln = 'ABC', all = [...kept, stats()], head = ['', ...kept.map((_, i) => Ln[i]), 'Now'];
   const rows = [head, ['Cluster every (m)', ...all.map(s => s.rule.gap)], ['Patio side (m)', ...all.map(s => s.rule.patio)], ['Type mix (0 small, 1 large)', ...all.map(s => s.rule.mix)], ['Height (0 S, 1 M, 2 L)', ...all.map(s => s.rule.h)], ...ROWS.map(([k, f]) => [k, ...all.map(f)])];
@@ -457,18 +542,23 @@ function exportCsv(){ if (!strokes.length) return toast('Trace a street first.')
 /* ---------- screen ---------- */
 function frame(now){ requestAnimationFrame(frame);
   if (cv.clientWidth !== W || cv.clientHeight !== H) resize();
-  const k = K0 * view.z * dpr, s = sheetOf(fmt), full = { x0:0, y0:0, x1:WW, y1:WH }; if (REC) s.sc = recSc();
+  const k = K0 * view.z * dpr, s = sheetOf(fmt), full = { x0:0, y0:0, x1:WW, y1:WH }; if (REC && !POT) s.sc = +Q.get('sc') || recSc();
   sg.setTransform(1, 0, 0, 1, 0, 0); sg.fillStyle = tok(MODES[bgm][0]); sg.fillRect(0, 0, cv.width, cv.height);
   sg.setTransform(k, 0, 0, k, (OX + view.x) * dpr, (OY + view.y) * dpr);
-    paint(sg, Object.assign(opts(mode === 'draw' || REC ? Object.assign({}, s, full) : s, { now, sheet:mode !== 'draw' && !sinCajetin, min:.7 / (K0 * view.z) }), REC ? { fx1:WW - safeM('rr'), fy1:WH - safeM('safe') } : {}));
+    paint(sg, Object.assign(opts(mode === 'draw' || REC ? Object.assign({}, s, full) : s, { now, sheet:mode !== 'draw' && !sinCajetin, min:.7 / (K0 * view.z), px:k }), REC ? { fx1:WW - safeM('rr'), fy1:WH - safeM('safe') } : {}));
   if (!REC){ sg.strokeStyle = tok(MODES[bgm][1]); sg.globalAlpha = .35; sg.lineWidth = 1 / (K0 * view.z); sg.strokeRect(0, 0, WW, WH); sg.globalAlpha = 1; } }   // the edge of the sheet
 function resize(){ W = cv.clientWidth; H = cv.clientHeight; dpr = window.__dpr || Math.min(window.devicePixelRatio || 1, 2); cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
   const open = !REC && !document.body.classList.contains('pclosed') && !document.body.classList.contains('pmin'), wide = W > 700;   // an open panel takes its side (or the bottom, on a phone): the sheet moves over, the panel never covers its centre
   const pad = REC ? 0 : 10, top = REC ? 0 : 66, left = open && wide ? 364 : 0, bot = REC ? 0 : open && !wide ? Math.round(H * .56) + 70 : 66;
   K0 = Math.min((W - left - 2*pad) / WW, (H - top - bot) / WH); OX = left + (W - left - WW*K0) / 2; OY = top + (H - top - bot - WH*K0) / 2; fit();
   document.body.classList.toggle('wide', OX > 180);
-  if (!bars.length) bars = WH > WW ? [{ cx:WW*.82, cy:WH*.12, a:.08, w:11, h:36 }, { cx:WW*.15, cy:WH*.72, a:-.06, w:11, h:34 }, { cx:WW*.2, cy:WH*.3, a:.1, w:30, h:10 }] : [{ cx:WW*.2, cy:WH*.2, a:.16, w:52, h:11 }, { cx:WW*.71, cy:WH*.3, a:-.1, w:11, h:44 }, { cx:WW*.44, cy:WH*.87, a:.03, w:46, h:11 }];   // what was already there
-  if (REC && Q.get('nb')) bars = bars.slice(0, +Q.get('nb')); }
+  if (!bars.length) bars = (POT ? (PORT ? SITES_A0_P : SITES_A0_L) : WH > WW ? SITES_P : SITES_L).map(([x, y, a, w, h, kind, seed]) => ({ cx:WW*x, cy:WH*y, a, w, h, kind, seed }));   // what was already there
+  if (REC && Q.get('nb')) bars = bars.slice(0, +Q.get('nb'));
+  bars.forEach(b => b.site = 1); }
+const SITES_L = [[.17, .2, 0, 40, 18, 'park', 6], [.71, .18, 0, 34, 22, 'church', 2], [.84, .2, 0, 16, 16, 'rotunda', 7], [.36, .84, 0, 18, 18, 'cloister', 5], [.5, .84, 0, 24, 18, 'temple', 3], [.66, .84, 0, 22, 18, 'park', 4]];   // on the axes of the sheet, edges in line
+const SITES_P = [[.86, .16, Math.PI/2, 26, 18, 'church', 2], [.13, .07, 0, 13, 13, 'cloister', 5], [.12, .72, 0, 16, 20, 'temple', 3], [.88, .6, 0, 12, 22, 'park', 6], [.14, .36, 0, 16, 24, 'park', 4]];   // on a tall sheet, what was already there keeps to the edges: the street needs the middle
+const SITES_A0_L = [[.12, .22, .14, 80, 40, 'park', 1], [.6, .16, -.08, 44, 28, 'church', 2], [.86, .62, .06, 32, 32, 'cloister', 3], [.36, .8, .03, 44, 24, 'ruin', 4], [.52, .5, .3, 36, 28, 'park', 5], [.2, .55, 1.3, 90, 7, 'wall', 6]];
+const SITES_A0_P = SITES_A0_L.map(([x, y, a, w, h, k, s]) => [y, x, a + Math.PI/2, w, h, k, s]);
 function fit(){ view.z = clamp(view.z, 1, 8); const mx = WW*K0*(view.z - 1), my = WH*K0*(view.z - 1); view.x = clamp(view.x, -mx - OX*(view.z > 1 ? 1 : 0), OX*(view.z > 1 ? 1 : 0)); view.y = clamp(view.y, -my - OY*(view.z > 1 ? 1 : 0), OY*(view.z > 1 ? 1 : 0)); if (view.z === 1){ view.x = 0; view.y = 0; } }
 function zoomAt(px, py, f){ const z0 = view.z, z1 = clamp(z0 * f, 1, 8), wx = (px - OX - view.x) / z0, wy = (py - OY - view.y) / z0; view.z = z1; view.x = px - OX - wx*z1; view.y = py - OY - wy*z1; fit(); }
 const toWorld = (px, py) => [(px - OX - view.x) / (K0 * view.z), (py - OY - view.y) / (K0 * view.z)];
@@ -497,24 +587,32 @@ $('bUndo').onclick = undo; $('bClear').onclick = clearAll; $('bKeep').onclick = 
 $('bExp').onclick = () => { $('exp').classList.toggle('on'); setExp(); }; $('xPdf').onclick = exportPdf; $('xPng').onclick = exportPng; $('xCsv').onclick = exportCsv;
 for (const b of $('xFmt').children) b.onclick = () => { fmt = b.dataset.v; setExp(); }; for (const b of $('xEdge').children) b.onclick = () => { edge = b.dataset.v; setExp(); };
 $('syn').onclick = () => showPanel('full'); $('bX').onclick = () => showPanel('off');
-for (const [id, k] of SL){ const el = $(id); el.value = RULE[k]; el.oninput = e => { RULE[k] = +e.target.value; rerun(); window.__api.settle(); }; }   // the panel stays put while a rule moves: the fabric is recalculated live, with no entrance animation. The one-slider panel is for recording only (__api.showPanel('min', id))
+for (const [id, k] of SL){ const el = $(id); el.value = RULE[k]; el.oninput = e => { RULE[k] = +e.target.value; rerun(); }; }   // the panel stays put while a rule moves: the fabric is recalculated live, with no entrance animation. The one-slider panel is for recording only (__api.showPanel('min', id))
 for (const k in MODES){ const b = document.createElement('button'); b.dataset.m = k; b.title = k; b.setAttribute('aria-label', k + ' sheet'); b.style.background = tok(MODES[k][0]); b.onclick = () => setBg(k); $('sw').appendChild(b); }
 
 /* ---------- for recording and for the automatic check ---------- */
 window.__api = { setMode, setBg, showPanel, keep, undo, clearAll, stats, exportPdf, exportPng, exportCsv,
   set(o){ if (o.fmt) fmt = o.fmt; if (o.edge) edge = o.edge; setExp(); }, sheet:() => sheetOf(fmt), world:() => [WW, WH, PORT], box:() => [OX + view.x, OY + view.y, WW*K0*view.z, WH*K0*view.z],
   view(z, fx, fy){ view.z = z; view.x = W/2 - OX - fx*WW*K0*z; view.y = H/2 - OY - fy*WH*K0*z; if (!REC) fit(); },
-  patios(){ return clusters.map(c => [c.patio.cx/WW, c.patio.cy/WH, c.n, c.kind]); },
+  patios(){ return clusters.map(c => [c.patio.cx/WW, c.patio.cy/WH, c.n, c.kind, c.bk]); },
   nib(x, y, on){ const n = $('nib'); n.style.display = on ? 'block' : 'none'; n.style.transform = `translate(${x}px,${y}px)`; },   // recording: the pen tip or the finger
   pen(fx, fy, st){ const x = fx*WW, y = fy*WH; if (st === 'down') begin(x, y); else if (st === 'up'){ cur = null; refresh(); } else move(x, y);
     this.nib(OX + view.x + x*K0*view.z, OY + view.y + y*K0*view.z, st !== 'up'); },
-  slide(id, v){ const el = $(id), k = SL.find(q => q[0] === id)[1], old = RULE[k]; el.value = v; RULE[k] = +el.value; refresh(); RULE[k] = old;   // recording: the thumb moves and the label follows; the fabric waits for the release
+  slide(id, v){ const el = $(id), k = SL.find(q => q[0] === id)[1]; el.value = v; RULE[k] = +v; rerun();   // recording: the thumb moves and the fabric follows it, live, as in the app
     const r = el.getBoundingClientRect(), t = (el.value - el.min) / (el.max - el.min); this.nib(r.left + 8 + t * (r.width - 16), r.top + r.height / 2, true); },
   clearKept(){ kept = []; refresh(); },
   cajetin(v){ sinCajetin = !v; },                           // recording: a close travelling shot over the measured fabric, without the sheet furniture
-  born(i){ const c = clusters[i], t = performance.now(); c.t0 = t; houses.filter(h => h.cid === c.patio.cid).forEach((h, j) => h.t0 = t + 140 + 130*j); },
-  settle(){ const t = performance.now() - 2000; [...clusters, ...houses, ...trees].forEach(o => o.t0 = t); },
-  rule(r, live){ Object.assign(RULE, r); for (const [id, k] of SL) $(id).value = RULE[k]; rerun(); if (!live) this.settle(); return stats(); },
+  born(i){ const c = clusters[i], t = performance.now(); c.t0 = t; born.set(c.bk, t); houses.filter(h => h.cid === c.patio.cid).forEach((h, j) => { h.t0 = t + 140 + 130*j; born.set(h.bk, h.t0); }); },
+  sites(list){ bars = list.map(([x, y, a, w, h, kind, seed]) => ({ cx:x*WW, cy:y*WH, a, w, h, kind, seed, site:1 })); build(true); refresh(); return bars.length; },   // recording: what was already there, from the script
+  bulk(paths){ for (const p of paths){ begin(p[0][0]*WW, p[0][1]*WH); for (let i = 1; i < p.length; i++){ const a = p[i-1], z = p[i], k = Math.max(1, Math.ceil(Math.hypot((z[0]-a[0])*WW, (z[1]-a[1])*WH) / 1.8));
+      for (let j = 1; j <= k; j++){ const x = (a[0] + (z[0]-a[0])*j/k)*WW, y = (a[1] + (z[1]-a[1])*j/k)*WH; cur.pts.push([x, y]); sp.push([x, y, cur.id]); } } cur = null; }
+    build(true); this.settle(); refresh(); return stats(); },   // recording: a whole city at once, one build instead of one per point
+  choques(){ let n = 0; for (const b of bars) for (const q of sp) if (inRect(q[0], q[1], b, 2.9)) { n++; break; } return n; },   // how many of the sites a street touches (a street is 5.6 m wide): must be 0
+  quitaChoques(){ const n = bars.length; bars = bars.filter(b => !sp.some(q => inRect(q[0], q[1], b, 3.4))); if (bars.length !== n){ build(true); this.settle(); refresh(); } return n - bars.length; },   // a site a street runs over is taken off
+  bornAt(i, ts){ const c = clusters[i]; c.t0 = ts[0]; born.set(c.bk, ts[0]); houses.filter(h => h.cid === c.patio.cid).forEach((h, j) => { h.t0 = ts[Math.min(j + 1, ts.length - 1)]; born.set(h.bk, h.t0); }); },   // recording: a cluster that is born again, one house on each given beat
+  ahora(){ return performance.now(); },
+  settle(){ const t = performance.now() - 2000; [...clusters, ...houses, ...trees].forEach(o => { o.t0 = t; born.set(o.bk, t); }); },
+  rule(r){ Object.assign(RULE, r); for (const [id, k] of SL) $(id).value = RULE[k]; rerun(); return stats(); },
   trace(paths, upTo = 1, live){ for (const p of paths){ const n = Math.max(2, Math.round(p.length * upTo)); let q = p[0]; begin(q[0]*WW, q[1]*WH);
       for (let i = 1; i < n; i++){ const d = Math.hypot((p[i][0]-q[0])*WW, (p[i][1]-q[1])*WH), k = Math.ceil(d / 1.8);
         for (let j = 1; j <= k; j++) move((q[0]+(p[i][0]-q[0])*j/k)*WW, (q[1]+(p[i][1]-q[1])*j/k)*WH); q = p[i]; } cur = null; }
